@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netball Stats Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .player-btn.selected {
+            @apply ring-4 ring-offset-2 ring-blue-600 bg-blue-200 shadow-lg transform scale-105;
+        }
+        .player-btn-flex {
+            @apply w-32 flex-shrink-0 p-3 border rounded-lg shadow-sm hover:bg-gray-100 text-left transition-all duration-150;
+        }
+        .stat-btn {
+            @apply w-full h-full p-2 text-center text-sm font-semibold rounded-lg shadow-md transition-all duration-150 active:transform active:scale-95;
+        }
+        .stat-btn-positive {
+            @apply bg-green-500 text-white hover:bg-green-600;
+        }
+        .stat-btn-negative {
+            @apply bg-red-500 text-white hover:bg-red-600;
+        }
+        .stat-btn-neutral {
+            @apply bg-gray-500 text-white hover:bg-gray-600;
+        }
+        .stat-btn-penalty {
+             @apply bg-yellow-500 text-black hover:bg-yellow-600;
+        }
+        #message-box {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        #stats-table th, #stats-table td {
+            @apply p-2 border border-gray-300 text-left;
+        }
+        #stats-table th {
+            @apply bg-gray-100;
+        }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        .player-list-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .player-list-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .player-list-container::-webkit-scrollbar-thumb {
+            background: #c4c4c4;
+            border-radius: 10px;
+        }
+        .player-list-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <div class="container mx-auto max-w-6xl p-4">
+        <header class="bg-white p-4 rounded-lg shadow-md mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <h1 class="text-3xl font-bold text-blue-700">Netball Stats Tracker</h1>
+                <nav class="mt-4 md:mt-0">
+                    <button data-view="setup" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200 active">Game Setup</button>
+                    <button data-view="live" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">Live Game</button>
+                    <button data-view="stats" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">View Stats</button>
+                    <button data-view="config" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">Config</button>
+                    <button data-view="help" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">Help</button>
+                </nav>
+            </div>
+        </header>
+
+        <main id="page-setup" class="page active">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4">Start a new game</h2>
+                
+                <form id="setup-form" class="space-y-6">
+                    <fieldset class="border rounded-lg p-4">
+                        <legend class="text-xl font-medium px-2">Tracking mode</legend>
+                        <div class="flex gap-6">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="tracking-mode" value="dual" class="form-radio text-blue-600" checked>
+                                <span class="text-lg">Track two teams</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="tracking-mode" value="single" class="form-radio text-blue-600">
+                                <span class="text-lg">Track one team</span>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="border rounded-lg p-4">
+                        <legend class="text-xl font-medium px-2">Our team</legend>
+                        <div class="mb-4">
+                            <label for="team-a-name" class="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
+                            <input type="text" id="team-a-name" class="w-full p-2 border rounded-md" placeholder="e.g., Vixens" required>
+                        </div>
+                        <h4 class="font-medium mb-2">Players (enter 7 positions)</h4>
+                        <div id="team-a-players" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <!-- Player inputs will be injected by JS -->
+                        </div>
+                    </fieldset>
+                    
+                    <!-- Team B Setup -->
+                    <fieldset id="team-b-setup" class="border rounded-lg p-4">
+                        <legend class="text-xl font-medium px-2">Their team</legend>
+                        <div class="mb-4">
+                            <label for="team-b-name" class="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
+                            <input type="text" id="team-b-name" class="w-full p-2 border rounded-md" placeholder="e.g., Swifts" required>
+                        </div>
+                        <h4 class="font-medium mb-2">Players (enter 7 positions)</h4>
+                        <div id="team-b-players" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <!-- Player inputs will be injected by JS -->
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-blue-700 transition-all">
+                        Start Game
+                    </button>
+                </form>
+                
+                <!-- Load Existing Game -->
+                <div class="mt-8 border-t pt-6">
+                    <h2 class="text-2xl font-semibold mb-4">Or load unfinished game</h2>
+                    <select id="load-game-select" class="w-full p-2 border rounded-md mb-4">
+                        <option value="">Select a game to resume...</option>
+                    </select>
+                    <button id="load-game-btn" class="w-full bg-gray-600 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-gray-700 transition-all">
+                        Load Game
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Page: Live Game -->
+        <main id="page-live" class="page">
+            <!-- Scoreboard and Timer -->
+            <div class="bg-white p-4 rounded-lg shadow-lg mb-4">
+                
+                <!-- Game Info: Quarter, Timer, End Game -->
+                <div class="flex justify-between items-center mb-4 pb-4 border-b">
+                    <div class="text-center">
+                        <span id="live-quarter" class="text-xl font-semibold text-gray-700">Quarter 1</span>
+                        <span id="live-timer" class="text-3xl font-bold text-gray-900 mx-6 block">15:00</span>
+                    </div>
+                    <button id="end-game" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold h-fit">End Game</button>
+                </div>
+
+                <!-- Scoreboard: Teams & Manual Score -->
+                <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-4 mb-4">
+                    <!-- Team A -->
+                    <div class="text-center md:text-right">
+                        <span id="live-team-a-name" class="text-xl md:text-3xl font-bold text-blue-600">Team A</span>
+                        <div class="flex items-center justify-center md:justify-end mt-2">
+                            <button data-team="A" data-adjust="-1" class="score-adjust-btn bg-red-500 text-white rounded-full w-8 h-8 text-2xl font-bold flex items-center justify-center">-</button>
+                            <span id="live-score-a" class="text-4xl md:text-6xl font-extrabold mx-4">0</span>
+                            <button data-team="A" data-adjust="1" class="score-adjust-btn bg-green-500 text-white rounded-full w-8 h-8 text-2xl font-bold flex items-center justify-center">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Timer Controls -->
+                    <div class="flex justify-center gap-2 flex-wrap order-first md:order-none">
+                        <button id="timer-start" class="bg-green-500 text-white px-4 py-2 rounded-lg font-medium">Start</button>
+                        <button id="timer-pause" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-medium">Pause</button>
+                        <button id="timer-reset" class="bg-gray-500 text-white px-4 py-2 rounded-lg font-medium">Reset</button>
+                        <button id="end-quarter" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">End Qtr</button>
+                    </div>
+
+                    <!-- Team B -->
+                    <div class="text-center md:text-left">
+                        <span id="live-team-b-name" class="text-xl md:text-3xl font-bold text-red-600">Team B</span>
+                         <div class="flex items-center justify-center md:justify-start mt-2">
+                            <button data-team="B" data-adjust="-1" class="score-adjust-btn bg-red-500 text-white rounded-full w-8 h-8 text-2xl font-bold flex items-center justify-center">-</button>
+                            <span id="live-score-b" class="text-4xl md:text-6xl font-extrabold mx-4">0</span>
+                            <button data-team="B" data-adjust="1" class="score-adjust-btn bg-green-500 text-white rounded-full w-8 h-8 text-2xl font-bold flex items-center justify-center">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Player and Stat Selection -->
+            <div class="space-y-4">
+                <!-- Team A Players -->
+                <div class="bg-white p-4 rounded-lg shadow-lg">
+                    <h3 id="player-list-a-name" class="text-lg font-semibold mb-2 text-blue-700">Team A Players</h3>
+                    <div id="player-list-a" class="player-list-container flex overflow-x-auto gap-3 p-2">
+                        <!-- Player buttons injected by JS -->
+                    </div>
+                </div>
+                
+                <!-- Team B Players -->
+                <div id="player-list-b-container" class="bg-white p-4 rounded-lg shadow-lg">
+                    <h3 id="player-list-b-name" class="text-lg font-semibold mb-2 text-red-700">Team B Players</h3>
+                    <div id="player-list-b" class="player-list-container flex overflow-x-auto gap-3 p-2">
+                        <!-- Player buttons injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat Buttons -->
+            <div class="bg-white p-4 rounded-lg shadow-lg mt-4">
+                <h3 id="record-stat-header" class="text-lg font-semibold mb-3 text-center">Record Stat for Selected Player</h3>
+                <div id="stat-buttons" class="grid grid-cols-3 md:grid-cols-6 gap-3">
+                    <!-- Stat buttons injected by JS -->
+                </div>
+            </div>
+            
+            <!-- Game Event Log -->
+            <div class="bg-white p-4 rounded-lg shadow-lg mt-4">
+                <h3 class="text-lg font-semibold mb-3 text-center">Live Event Log (Last 10)</h3>
+                <button id="undo-last" class="w-full bg-gray-800 text-white py-2 rounded-lg mb-3 hover:bg-gray-700">Undo Last</button>
+                <ul id="event-log" class="text-sm space-y-2 h-48 overflow-y-auto border rounded-lg p-2">
+                    <!-- Log items injected by JS -->
+                </ul>
+            </div>
+        </main>
+
+        <!-- Page: View Stats -->
+        <main id="page-stats" class="page">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4">View Game Statistics</h2>
+                
+                <label for="stats-game-select" class="block text-sm font-medium text-gray-700 mb-1">Select a Game</label>
+                <select id="stats-game-select" class="w-full p-2 border rounded-md mb-4">
+                    <option value="">Select a finished game...</option>
+                </select>
+
+                <div id="stats-output" class="hidden">
+                    <div class="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-4">
+                        <h3 id="stats-game-title" class="text-xl font-semibold">Game Stats</h3>
+                        <button id="export-csv-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 w-full md:w-auto">
+                            Export Raw CSV
+                        </button>
+                    </div>
+                    
+                    <h4 class="text-lg font-medium mt-4 mb-2">Final Score</h4>
+                    <p id="stats-final-score" class="text-2xl font-bold mb-4"></p>
+
+                    <h4 class="text-lg font-medium mt-4 mb-2">Player Statistics</h4>
+                    <div class="overflow-x-auto">
+                        <table id="stats-table" class="w-full border-collapse">
+                            <thead id="stats-table-head">
+                                <!-- Header generated by JS -->
+                            </thead>
+                            <tbody id="stats-table-body">
+                                <!-- Body generated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Page: Config -->
+        <main id="page-config" class="page">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Add New Stat -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-semibold mb-4">Add Custom Stat</h2>
+                    <form id="add-stat-form" class="space-y-4">
+                        <div>
+                            <label for="stat-name" class="block text-sm font-medium text-gray-700">Stat Name</label>
+                            <input type="text" id="stat-name" class="w-full p-2 border rounded-md mt-1" placeholder="e.g., Deflection" required>
+                        </div>
+                        <div>
+                            <label for="stat-type" class="block text-sm font-medium text-gray-700">Stat Type</label>
+                            <select id="stat-type" class="w-full p-2 border rounded-md mt-1 bg-white">
+                                <option value="positive">Positive</option>
+                                <option value="negative">Negative</option>
+                                <option value="neutral">Neutral</option>
+                                <option value="penalty">Penalty</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" id="stat-scores" class="h-4 w-4 text-blue-600 rounded border-gray-300">
+                            <label for="stat-scores" class="text-sm font-medium text-gray-700">Scores Points?</label>
+                        </div>
+                        <div id="stat-points-container" class="hidden">
+                             <label for="stat-points" class="block text-sm font-medium text-gray-700">Points Value</label>
+                             <input type="number" id="stat-points" value="1" min="1" class="w-full p-2 border rounded-md mt-1">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">
+                            Add Stat
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Manage Stats -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-semibold mb-4">Manage Stats</h2>
+                    <ul id="custom-stats-list" class="space-y-3">
+                        <!-- Stats will be injected by JS -->
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <!-- Page: Help -->
+        <main id="page-help" class="page">
+            <div class="bg-white p-6 rounded-lg shadow-lg prose max-w-none">
+                <h2 class="text-2xl font-semibold mb-4">How to Use</h2>
+                <ol class="list-decimal list-inside space-y-3">
+                    <li>
+                        <strong>Config:</strong> (Optional) Go to the 'Config' page to add your own custom stats. You can define the name, type (positive, negative, etc.), and whether it scores points.
+                    </li>
+                    <li>
+                        <strong>Game Setup:</strong> Go to the 'Game Setup' page. Choose to track one or two teams, enter the team and player names, and hit "Start Game". You can also load an unfinished game from this page.
+                    </li>
+                    <li>
+                        <strong>Live Game:</strong> This is where you'll spend game time.
+                        <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                            <li>To record a stat, <strong>tap a player first</strong> (they will be highlighted), then <strong>tap the stat</strong> you want to record.</li>
+                            <li>The header will show you which player is currently selected.</li>
+                            <li>Use the timer controls (Start, Pause, Reset, End Qtr) to manage the game clock.</li>
+                            <li>You can manually adjust the main score using the "+" and "-" buttons if needed.</li>
+                            <li>Use "Undo Last" to remove the most recent stat entry.</li>
+                            <li>Click "End Game" when the match is over.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>View Stats:</strong> Go here after a game. Select a finished game from the dropdown to see a summary table of all player stats. You can also export the raw event log for that game to a CSV file for your own analysis in Excel or Google Sheets.
+                    </li>
+                </ol>
+
+                <h2 class="text-2xl font-semibold mt-8 mb-4">Feedback & Support</h2>
+                <p>
+                    This app runs entirely in your browser and saves all data to your device's local storage. No data is sent to any server.
+                </p>
+                <p>
+                    For feedback, bug reports, or feature requests, please visit the project's GitHub page (<span class="font-medium"><a href="https://github.com/jimsug/netball-stats/" target="_blank">jimsug/netball-stats</a></span>) or contact the developer 
+                    (<span class="font-medium"><a href="mailto:jimsug@pm.me" target="_blank">jimsug@pm.me</a></span>)
+                </p>
+            </div>
+        </main>
+
+
+    </div>
+    
+    <!-- Floating Message Box -->
+    <div id="message-box" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl opacity-0 transform translate-y-4 pointer-events-none">
+        <span id="message-text">Message</span>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- CONSTANTS ---
+            const POSITIONS = ['GS', 'GA', 'WA', 'C', 'WD', 'GD', 'GK'];
+            const DEFAULT_STATS = [
+                { name: 'Goal Scored', id: 'goal_scored', type: 'positive', score: 1, isCustom: false },
+                { name: 'Goal Missed', id: 'goal_missed', type: 'negative', score: 0, isCustom: false },
+                { name: 'Goal Assist', id: 'goal_assist', type: 'positive', score: 0, isCustom: false },
+                { name: 'Interception', id: 'intercept', type: 'positive', score: 0, isCustom: false },
+                { name: 'Turnover', id: 'turnover', type: 'negative', score: 0, isCustom: false },
+                { name: 'Penalty', id: 'penalty', type: 'penalty', score: 0, isCustom: false },
+                { name: 'Rebound Atk', id: 'rebound_atk', type: 'positive', score: 0, isCustom: false },
+                { name: 'Rebound Def', id: 'rebound_def', type: 'positive', score: 0, isCustom: false },
+                { name: 'Centre Pass', id: 'centre_pass', type: 'neutral', score: 0, isCustom: false },
+            ];
+            const STORAGE_KEYS = {
+                games: 'netball_games',
+                events: 'netball_events',
+                stats: 'netball_stats_config'
+            };
+
+            // --- STATE ---
+            let state = {
+                currentView: 'setup',
+                currentGameId: null,
+                activePlayer: {
+                    id: null,
+                    teamId: null,
+                    name: null,
+                    position: null
+                },
+                timer: {
+                    interval: null,
+                    secondsRemaining: 15 * 60 // 15 minutes
+                }
+            };
+
+            // --- DOM ELEMENTS ---
+            const $ = (selector) => document.querySelector(selector);
+            const $$ = (selector) => document.querySelectorAll(selector);
+
+            const navButtons = $$('.nav-btn');
+            const pages = $$('.page');
+            const setupForm = $('#setup-form');
+            const teamAPlayersDiv = $('#team-a-players');
+            const teamBPlayersDiv = $('#team-b-players');
+            const teamBSetup = $('#team-b-setup');
+            const loadGameSelect = $('#load-game-select');
+            const loadGameBtn = $('#load-game-btn');
+            const trackingModeRadios = $$('input[name="tracking-mode"]');
+            
+            // Live Game Elements
+            const liveQuarterEl = $('#live-quarter');
+            const liveTimerEl = $('#live-timer');
+            const liveScoreAEl = $('#live-score-a');
+            const liveScoreBEl = $('#live-score-b');
+            const liveTeamAEl = $('#live-team-a-name');
+            const liveTeamBEl = $('#live-team-b-name');
+            const playerListA = $('#player-list-a');
+            const playerListB = $('#player-list-b');
+            const playerListAName = $('#player-list-a-name');
+            const playerListBName = $('#player-list-b-name');
+            const playerListBContainer = $('#player-list-b-container');
+            const statButtonsDiv = $('#stat-buttons');
+            const recordStatHeader = $('#record-stat-header');
+            const eventLogUl = $('#event-log');
+
+            // Timer Buttons
+            const timerStartBtn = $('#timer-start');
+            const timerPauseBtn = $('#timer-pause');
+            const timerResetBtn = $('#timer-reset');
+            const endQuarterBtn = $('#end-quarter');
+            const endGameBtn = $('#end-game');
+            const undoBtn = $('#undo-last');
+
+            // Stats Page Elements
+            const statsGameSelect = $('#stats-game-select');
+            const statsOutput = $('#stats-output');
+            const statsGameTitle = $('#stats-game-title');
+            const statsFinalScore = $('#stats-final-score');
+            const statsTableHead = $('#stats-table-head');
+            const statsTableBody = $('#stats-table-body');
+            const exportCsvBtn = $('#export-csv-btn');
+            
+            // Config Page Elements
+            const addStatForm = $('#add-stat-form');
+            const statScoresCheckbox = $('#stat-scores');
+            const statPointsContainer = $('#stat-points-container');
+            const customStatsList = $('#custom-stats-list');
+
+            // Message Box
+            const messageBox = $('#message-box');
+            const messageText = $('#message-text');
+
+            // --- STORAGE FUNCTIONS ---
+            const getFromStorage = (key) => {
+                try {
+                    const item = localStorage.getItem(key);
+                    return item ? JSON.parse(item) : [];
+                } catch (e) {
+                    console.error("Error reading from localStorage", e);
+                    return [];
+                }
+            };
+
+            const saveToStorage = (key, value) => {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                } catch (e) {
+                    console.error("Error saving to localStorage", e);
+                    showMessage("Error saving data. Storage might be full.");
+                }
+            };
+            
+            const getStats = () => {
+                return getFromStorage(STORAGE_KEYS.stats);
+            };
+
+            // --- UTILITY FUNCTIONS ---
+            const generateId = () => `id_${new Date().getTime()}_${Math.random().toString(36).substring(2, 9)}`;
+            
+            const formatTime = (totalSeconds) => {
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            };
+            
+            const showMessage = (message, duration = 3000) => {
+                messageText.textContent = message;
+                messageBox.classList.remove('opacity-0', 'translate-y-4');
+                messageBox.classList.add('opacity-100', 'translate-y-0');
+
+                setTimeout(() => {
+                    messageBox.classList.add('opacity-0', 'translate-y-4');
+                    messageBox.classList.remove('opacity-100', 'translate-y-0');
+                }, duration);
+            };
+
+            // --- NAVIGATION ---
+            const showView = (viewId) => {
+                state.currentView = viewId;
+                pages.forEach(page => page.classList.toggle('active', page.id === `page-${viewId}`));
+                navButtons.forEach(btn => {
+                    btn.classList.toggle('bg-blue-100', btn.dataset.view === viewId);
+                    btn.classList.toggle('text-blue-700', btn.dataset.view === viewId);
+                });
+                
+                // Refresh data on view change
+                if (viewId === 'stats') {
+                    renderStatsPage();
+                }
+                if (viewId === 'setup') {
+                    renderSetupPage();
+                }
+                if (viewId === 'config') {
+                    renderConfigPage();
+                }
+            };
+
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => showView(btn.dataset.view));
+            });
+
+            // --- SETUP PAGE ---
+            const renderPlayerInputs = (container, teamLetter) => {
+                container.innerHTML = '';
+                POSITIONS.forEach(pos => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <label for="player-${teamLetter}-${pos}" class="block text-sm font-medium text-gray-700">${pos}</label>
+                        <input type="text" id="player-${teamLetter}-${pos}" data-position="${pos}" class="w-full p-2 border rounded-md" placeholder="Player name" required>
+                    `;
+                    container.appendChild(div);
+                });
+            };
+            
+            const renderSetupPage = () => {
+                // Populate load game dropdown
+                const games = getFromStorage(STORAGE_KEYS.games);
+                const unfinishedGames = games.filter(g => !g.isFinished);
+                
+                loadGameSelect.innerHTML = '<option value="">Select a game to resume...</option>';
+                unfinishedGames.forEach(game => {
+                    const option = document.createElement('option');
+                    option.value = game.id;
+                    option.textContent = `${game.date}: ${game.teamA.name} vs ${game.teamB.name}`;
+                    loadGameSelect.appendChild(option);
+                });
+                loadGameBtn.disabled = unfinishedGames.length === 0;
+            };
+
+            trackingModeRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    teamBSetup.style.display = e.target.value === 'dual' ? 'block' : 'none';
+                    // Toggle 'required' attribute on Team B inputs
+                    $$('#team-b-players input, #team-b-name').forEach(input => {
+                         input.required = e.target.value === 'dual';
+                    });
+                });
+            });
+
+            setupForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const trackingMode = $('input[name="tracking-mode"]:checked').value;
+                const teamAName = $('#team-a-name').value.trim();
+                const teamBName = (trackingMode === 'dual') ? $('#team-b-name').value.trim() : 'Opponent';
+
+                const getPlayers = (teamLetter) => {
+                    return Array.from($$(`#team-${teamLetter}-players input`)).map(input => ({
+                        id: generateId(),
+                        name: input.value.trim(),
+                        position: input.dataset.position
+                    }));
+                };
+                
+                const teamAPlayers = getPlayers('a');
+                const teamBPlayers = (trackingMode === 'dual') ? getPlayers('b') : [];
+                
+                if (teamAPlayers.some(p => !p.name)) {
+                    showMessage("Please enter all 7 player names for the Home Team.");
+                    return;
+                }
+                if (trackingMode === 'dual' && teamBPlayers.some(p => !p.name)) {
+                    showMessage("Please enter all 7 player names for the Away Team.");
+                    return;
+                }
+
+                const newGame = {
+                    id: generateId(),
+                    date: new Date().toLocaleDateString(),
+                    trackingMode: trackingMode,
+                    isFinished: false,
+                    currentQuarter: 1,
+                    teamA: {
+                        id: generateId(),
+                        name: teamAName,
+                        players: teamAPlayers,
+                        score: 0
+                    },
+                    teamB: {
+                        id: generateId(),
+                        name: teamBName,
+                        players: teamBPlayers,
+                        score: 0
+                    }
+                };
+                
+                const games = getFromStorage(STORAGE_KEYS.games);
+                games.push(newGame);
+                saveToStorage(STORAGE_KEYS.games, games);
+                
+                state.currentGameId = newGame.id;
+                setupForm.reset();
+                teamBSetup.style.display = 'block'; // Reset setup page view
+                $$('#team-b-players input, #team-b-name').forEach(input => input.required = true);
+                renderLiveGame(newGame.id);
+                showView('live');
+                showMessage(`Game started: ${teamAName} vs ${teamBName}`);
+            });
+            
+            loadGameBtn.addEventListener('click', () => {
+                const gameId = loadGameSelect.value;
+                if (!gameId) {
+                    showMessage("Please select a game to load.");
+                    return;
+                }
+                state.currentGameId = gameId;
+                renderLiveGame(gameId);
+                showView('live');
+                showMessage("Game loaded.");
+            });
+
+            // --- LIVE GAME PAGE ---
+            const renderLiveGame = (gameId) => {
+                const game = getGameById(gameId);
+                if (!game) {
+                    showMessage("Error: Could not find game.");
+                    showView('setup');
+                    return;
+                }
+                
+                // Reset active player
+                clearActivePlayer();
+                
+                // Set score, names, quarter
+                liveTeamAEl.textContent = game.teamA.name;
+                liveTeamBEl.textContent = game.teamB.name;
+                playerListAName.textContent = game.teamA.name;
+                playerListBName.textContent = game.teamB.name;
+                updateScoreboard(game);
+                liveQuarterEl.textContent = game.isFinished ? `Final (Q${game.currentQuarter})` : `Quarter ${game.currentQuarter}`;
+                
+                // Render player buttons
+                const createPlayerBtn = (player, teamId) => {
+                    const btn = document.createElement('button');
+                    btn.className = "player-btn player-btn-flex";
+                    btn.dataset.playerId = player.id;
+                    btn.dataset.teamId = teamId;
+                    btn.innerHTML = `
+                        <span class="font-bold text-lg">${player.position}</span>
+                        <span class="block text-sm text-gray-700 truncate">${player.name}</span>
+                    `;
+                    btn.addEventListener('click', () => handlePlayerSelect(player, teamId, btn));
+                    return btn;
+                };
+                
+                playerListA.innerHTML = '';
+                game.teamA.players.forEach(p => playerListA.appendChild(createPlayerBtn(p, game.teamA.id)));
+                
+                // Handle single team tracking
+                if (game.trackingMode === 'single') {
+                    playerListBContainer.style.display = 'none';
+                } else {
+                    playerListBContainer.style.display = 'block';
+                    playerListB.innerHTML = '';
+                    game.teamB.players.forEach(p => playerListB.appendChild(createPlayerBtn(p, game.teamB.id)));
+                }
+
+                // Render stat buttons
+                statButtonsDiv.innerHTML = '';
+                getStats().forEach(stat => {
+                    const btn = document.createElement('button');
+                    let btnClass = 'stat-btn-neutral';
+                    if (stat.type === 'positive') btnClass = 'stat-btn-positive';
+                    if (stat.type === 'negative') btnClass = 'stat-btn-negative';
+                    if (stat.type === 'penalty') btnClass = 'stat-btn-penalty';
+                    
+                    btn.className = `stat-btn ${btnClass}`;
+                    btn.dataset.statId = stat.id;
+                    btn.textContent = stat.name;
+                    btn.addEventListener('click', () => handleStatSelect(stat));
+                    statButtonsDiv.appendChild(btn);
+                });
+                
+                // Render event log
+                renderEventLog();
+                
+                // Reset and render timer
+                stopTimer();
+                state.timer.secondsRemaining = 15 * 60;
+                liveTimerEl.textContent = formatTime(state.timer.secondsRemaining);
+                
+                // Disable controls if game is finished
+                const isFinished = game.isFinished;
+                [timerStartBtn, timerPauseBtn, timerResetBtn, endQuarterBtn, endGameBtn, undoBtn].forEach(btn => btn.disabled = isFinished);
+                $$('.score-adjust-btn').forEach(btn => btn.disabled = isFinished);
+                statButtonsDiv.classList.toggle('opacity-50', isFinished);
+                statButtonsDiv.classList.toggle('pointer-events-none', isFinished);
+                playerListA.classList.toggle('opacity-50', isFinished);
+                playerListA.classList.toggle('pointer-events-none', isFinished);
+                playerListB.classList.toggle('opacity-50', isFinished);
+                playerListB.classList.toggle('pointer-events-none', isFinished);
+                
+                if (isFinished) {
+                    showMessage("This game is finished. View stats on the 'View Stats' page.");
+                }
+            };
+            
+            const getGameById = (gameId) => {
+                 return getFromStorage(STORAGE_KEYS.games).find(g => g.id === gameId);
+            }
+            
+            const updateScoreboard = (game) => {
+                liveScoreAEl.textContent = game.teamA.score;
+                liveScoreBEl.textContent = game.teamB.score;
+            };
+            
+            // Manual Score Adjustment
+            $$('.score-adjust-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const team = btn.dataset.team;
+                    const adjustment = parseInt(btn.dataset.adjust, 10);
+                    
+                    const games = getFromStorage(STORAGE_KEYS.games);
+                    const gameIndex = games.findIndex(g => g.id === state.currentGameId);
+                    if (gameIndex === -1) return;
+                    
+                    let game = games[gameIndex];
+                    if (team === 'A') {
+                        game.teamA.score = Math.max(0, game.teamA.score + adjustment);
+                    } else {
+                        game.teamB.score = Math.max(0, game.teamB.score + adjustment);
+                    }
+                    
+                    saveToStorage(STORAGE_KEYS.games, games);
+                    updateScoreboard(game);
+                });
+            });
+
+            const handlePlayerSelect = (player, teamId, btnEl) => {
+                // Clear previous selection
+                clearActivePlayer();
+
+                // Set new selection
+                state.activePlayer.id = player.id;
+                state.activePlayer.teamId = teamId;
+                state.activePlayer.name = player.name;
+                state.activePlayer.position = player.position;
+                btnEl.classList.add('selected');
+                recordStatHeader.textContent = `Record stat for selected player (${player.position} - ${player.name} ${teamName})`;
+            };
+            
+            const clearActivePlayer = () => {
+                state.activePlayer.id = null;
+                state.activePlayer.teamId = null;
+                state.activePlayer.name = null;
+                state.activePlayer.position = null;
+                $$('.player-btn.selected').forEach(b => b.classList.remove('selected'));
+                recordStatHeader.textContent = 'Record stat for selected player (select a player)';
+            };
+
+            const handleStatSelect = (stat) => {
+                if (!state.activePlayer.id) {
+                    showMessage("Please select a player first.");
+                    return;
+                }
+                
+                const game = getGameById(state.currentGameId);
+                if (game.isFinished) {
+                    showMessage("Game is finished. Cannot add new stats.");
+                    return;
+                }
+
+                const newEvent = {
+                    id: generateId(),
+                    gameId: state.currentGameId,
+                    teamId: state.activePlayer.teamId,
+                    playerId: state.activePlayer.id,
+                    playerName: state.activePlayer.name,
+                    playerPosition: state.activePlayer.position,
+                    statId: stat.id,
+                    statName: stat.name,
+                    quarter: game.currentQuarter,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Add event to log
+                const events = getFromStorage(STORAGE_KEYS.events);
+                events.push(newEvent);
+                saveToStorage(STORAGE_KEYS.events, events);
+                
+                // Update score if necessary
+                if (stat.score && stat.score > 0) {
+                    const games = getFromStorage(STORAGE_KEYS.games);
+                    const gameIndex = games.findIndex(g => g.id === state.currentGameId);
+                    
+                    if (game.teamA.id === newEvent.teamId) {
+                        games[gameIndex].teamA.score += stat.score;
+                    } else {
+                        games[gameIndex].teamB.score += stat.score;
+                    }
+                    saveToStorage(STORAGE_KEYS.games, games);
+                    updateScoreboard(games[gameIndex]);
+                }
+                
+                // Log to UI and clear selection
+                logEventToUI(newEvent, game);
+                clearActivePlayer();
+            };
+            
+            const logEventToUI = (event, game) => {
+                const li = document.createElement('li');
+                const teamName = game.teamA.id === event.teamId ? game.teamA.name : game.teamB.name;
+                li.className = "p-2 bg-gray-50 rounded";
+                li.textContent = `[Q${event.quarter}] ${event.playerName} (${teamName}) - ${event.statName}`;
+                li.dataset.eventId = event.id;
+                eventLogUl.prepend(li); // Add to top
+                
+                // Keep log to last 10
+                while (eventLogUl.children.length > 10) {
+                    eventLogUl.removeChild(eventLogUl.lastChild);
+                }
+            };
+            
+            const renderEventLog = () => {
+                eventLogUl.innerHTML = '';
+                const game = getGameById(state.currentGameId);
+                if (!game) return;
+                
+                const allEvents = getFromStorage(STORAGE_KEYS.events);
+                const gameEvents = allEvents
+                    .filter(e => e.gameId === state.currentGameId)
+                    .slice(-10) // Get last 10
+                    .reverse(); // To prepend correctly
+                    
+                gameEvents.forEach(event => logEventToUI(event, game));
+            };
+            
+            undoBtn.addEventListener('click', () => {
+                let allEvents = getFromStorage(STORAGE_KEYS.events);
+                const gameEvents = allEvents.filter(e => e.gameId === state.currentGameId);
+                
+                if (gameEvents.length === 0) {
+                    showMessage("No events to undo.");
+                    return;
+                }
+                
+                const lastEvent = gameEvents[gameEvents.length - 1];
+                
+                // Remove from event log
+                allEvents = allEvents.filter(e => e.id !== lastEvent.id);
+                saveToStorage(STORAGE_KEYS.events, allEvents);
+                
+                // Remove from UI log
+                const logItem = $(`[data-event-id="${lastEvent.id}"]`);
+                if (logItem) logItem.remove();
+
+                // Revert score if it was a goal
+                const stat = getStats().find(s => s.id === lastEvent.statId);
+                if (stat && stat.score && stat.score > 0) {
+                    const games = getFromStorage(STORAGE_KEYS.games);
+                    const gameIndex = games.findIndex(g => g.id === state.currentGameId);
+                    
+                    if (games[gameIndex].teamA.id === lastEvent.teamId) {
+                        games[gameIndex].teamA.score -= stat.score;
+                    } else {
+                        games[gameIndex].teamB.score -= stat.score;
+                    }
+                    saveToStorage(STORAGE_KEYS.games, games);
+                    updateScoreboard(games[gameIndex]);
+                }
+                
+                showMessage(`Event undone: ${lastEvent.statName}`);
+            });
+
+            // --- TIMER LOGIC ---
+            const startTimer = () => {
+                if (state.timer.interval) return; // Already running
+                const game = getGameById(state.currentGameId);
+                if (!game || game.isFinished) return;
+
+                state.timer.interval = setInterval(() => {
+                    state.timer.secondsRemaining--;
+                    liveTimerEl.textContent = formatTime(state.timer.secondsRemaining);
+                    
+                    if (state.timer.secondsRemaining <= 0) {
+                        stopTimer();
+                        liveTimerEl.textContent = "00:00";
+                        showMessage(`Quarter ${game.currentQuarter} time expired!`);
+                    }
+                }, 1000);
+            };
+
+            const stopTimer = () => {
+                clearInterval(state.timer.interval);
+                state.timer.interval = null;
+            };
+
+            timerStartBtn.addEventListener('click', startTimer);
+            timerPauseBtn.addEventListener('click', stopTimer);
+            timerResetBtn.addEventListener('click', () => {
+                stopTimer();
+                state.timer.secondsRemaining = 15 * 60;
+                liveTimerEl.textContent = formatTime(state.timer.secondsRemaining);
+            });
+            
+            endQuarterBtn.addEventListener('click', () => {
+                stopTimer();
+                let games = getFromStorage(STORAGE_KEYS.games);
+                const gameIndex = games.findIndex(g => g.id === state.currentGameId);
+                if (gameIndex === -1) return;
+                
+                let game = games[gameIndex];
+                
+                if (game.currentQuarter < 4) {
+                    game.currentQuarter++;
+                    liveQuarterEl.textContent = `Quarter ${game.currentQuarter}`;
+                    state.timer.secondsRemaining = 15 * 60;
+                    liveTimerEl.textContent = formatTime(state.timer.secondsRemaining);
+                    saveToStorage(STORAGE_KEYS.games, games);
+                    showMessage(`Quarter ${game.currentQuarter - 1} ended. Starting Quarter ${game.currentQuarter}.`);
+                } else {
+                    handleEndGame();
+                }
+            });
+            
+            endGameBtn.addEventListener('click', handleEndGame);
+
+            function handleEndGame() {
+                stopTimer();
+                let games = getFromStorage(STORAGE_KEYS.games);
+                const gameIndex = games.findIndex(g => g.id === state.currentGameId);
+                if (gameIndex === -1) return;
+                
+                games[gameIndex].isFinished = true;
+                saveToStorage(STORAGE_KEYS.games, games);
+                
+                liveQuarterEl.textContent = `Final (Q${games[gameIndex].currentQuarter})`;
+                showMessage("Game Finished! Stats are now available.");
+                
+                // Disable all live game controls
+                renderLiveGame(state.currentGameId);
+            };
+            
+
+            // --- STATS PAGE ---
+            const renderStatsPage = () => {
+                const games = getFromStorage(STORAGE_KEYS.games);
+                const finishedGames = games.filter(g => g.isFinished);
+                
+                statsGameSelect.innerHTML = '<option value="">Select a finished game...</option>';
+                finishedGames.forEach(game => {
+                    const option = document.createElement('option');
+                    option.value = game.id;
+                    option.textContent = `${game.date}: ${game.teamA.name} vs ${game.teamB.name}`;
+                    statsGameSelect.appendChild(option);
+                });
+                
+                statsOutput.classList.add('hidden');
+            };
+
+            statsGameSelect.addEventListener('change', (e) => {
+                const gameId = e.target.value;
+                if (!gameId) {
+                    statsOutput.classList.add('hidden');
+                    return;
+                }
+                
+                const game = getGameById(gameId);
+                const allEvents = getFromStorage(STORAGE_KEYS.events);
+                const gameEvents = allEvents.filter(ev => ev.gameId === gameId);
+                
+                statsGameTitle.textContent = `${game.teamA.name} vs ${game.teamB.name}`;
+                statsFinalScore.textContent = `${game.teamA.name} ${game.teamA.score} - ${game.teamB.score} ${game.teamB.name}`;
+                
+                const gameStatsMap = new Map();
+                gameEvents.forEach(event => {
+                    if (!gameStatsMap.has(event.statId)) {
+                        gameStatsMap.set(event.statId, event.statName);
+                    }
+                });
+
+                const gameStats = Array.from(gameStatsMap, ([id, name]) => ({ id, name }));
+                
+                gameStats.sort((a, b) => a.name.localeCompare(b.name));
+                
+                const allPlayers = [...game.teamA.players, ...game.teamB.players];
+                const playerStats = {};
+
+                allPlayers.forEach(p => {
+                    playerStats[p.id] = {
+                        name: p.name,
+                        position: p.position,
+                        team: (game.teamA.players.some(pA => pA.id === p.id)) ? game.teamA.name : game.teamB.name,
+                    };
+                    gameStats.forEach(s => playerStats[p.id][s.id] = 0);
+                });
+
+                gameEvents.forEach(event => {
+                    if (playerStats[event.playerId] && playerStats[event.playerId].hasOwnProperty(event.statId)) {
+                        playerStats[event.playerId][event.statId]++;
+                    }
+                });
+                
+                // Build table
+                statsTableHead.innerHTML = '';
+                let headerRow = '<tr><th>Player</th><th>Team</th>';
+                gameStats.forEach(s => headerRow += `<th>${s.name}</th>`);
+                headerRow += '</tr>';
+                statsTableHead.innerHTML = headerRow;
+                
+                statsTableBody.innerHTML = '';
+                for (const playerId in playerStats) {
+                    const stats = playerStats[playerId];
+                    let bodyRow = `<tr><td class="font-medium">${stats.name} (${stats.position})</td><td>${stats.team}</td>`;
+                    gameStats.forEach(s => bodyRow += `<td>${stats[s.id]}</td>`);
+                    bodyRow += '</tr>';
+                    statsTableBody.innerHTML += bodyRow;
+                }
+
+                statsOutput.classList.remove('hidden');
+            });
+            
+            exportCsvBtn.addEventListener('click', () => {
+                const gameId = statsGameSelect.value;
+                if (!gameId) {
+                    showMessage("Please select a game to export.");
+                    return;
+                }
+                
+                const game = getGameById(gameId);
+                const allEvents = getFromStorage(STORAGE_KEYS.events);
+                const gameEvents = allEvents.filter(ev => ev.gameId === gameId);
+                
+                let csvContent = "data:text/csv;charset=utf-8,";
+                // CSV Header
+                csvContent += "GameID,GameDate,TeamA,TeamB,EventID,Timestamp,Quarter,TeamName,PlayerID,PlayerName,PlayerPosition,StatID,StatName\r\n";
+                
+                // CSV Rows
+                gameEvents.forEach(event => {
+                    const teamName = game.teamA.id === event.teamId ? game.teamA.name : game.teamB.name;
+                    const row = [
+                        game.id,
+                        game.date,
+                        game.teamA.name,
+                        game.teamB.name,
+                        event.id,
+                        event.timestamp,
+                        event.quarter,
+                        teamName, // Using name for readability, could use event.teamId
+                        event.playerId,
+                        event.playerName,
+                        event.playerPosition,
+                        event.statId,
+                        event.statName
+                    ].map(val => `"${val}"`).join(","); // Quote all values
+                    csvContent += row + "\r\n";
+                });
+                
+                // Create and trigger download link
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `netball_stats_${game.teamA.name}_vs_${game.teamB.name}_${game.date}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            // --- CONFIG PAGE ---
+            const renderConfigPage = () => {
+                customStatsList.innerHTML = '';
+                const stats = getStats();
+                
+                stats.forEach(stat => {
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg border';
+                    li.innerHTML = `
+                        <div>
+                            <span class="font-medium">${stat.name}</span>
+                            <span class="text-sm text-gray-600 ml-2">(${stat.type}, ${stat.score}pts)</span>
+                        </div>
+                        ${stat.isCustom ? `<button data-stat-id="${stat.id}" class="delete-stat-btn text-red-500 hover:text-red-700 font-medium">Delete</button>` : '<span class="text-sm text-gray-400">Default</span>'}
+                    `;
+                    customStatsList.appendChild(li);
+                });
+                
+                // Add event listeners to delete buttons
+                $$('.delete-stat-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const statId = e.target.dataset.statId;
+                        let currentStats = getStats();
+                        currentStats = currentStats.filter(s => s.id !== statId);
+                        saveToStorage(STORAGE_KEYS.stats, currentStats);
+                        renderConfigPage(); // Re-render the list
+                        showMessage("Stat deleted.");
+                    });
+                });
+            };
+            
+            statScoresCheckbox.addEventListener('change', (e) => {
+                statPointsContainer.style.display = e.target.checked ? 'block' : 'none';
+            });
+            
+            addStatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = $('#stat-name').value.trim();
+                const type = $('#stat-type').value;
+                const scores = $('#stat-scores').checked;
+                const points = parseInt($('#stat-points').value, 10) || 0;
+                
+                if (!name) {
+                    showMessage("Please enter a stat name.");
+                    return;
+                }
+                
+                const newStat = {
+                    name: name,
+                    id: `custom_${name.toLowerCase().replace(/\s+/g, '_')}_${generateId()}`,
+                    type: type,
+                    score: scores ? points : 0,
+                    isCustom: true
+                };
+                
+                const currentStats = getStats();
+                currentStats.push(newStat);
+                saveToStorage(STORAGE_KEYS.stats, currentStats);
+                
+                addStatForm.reset();
+                statPointsContainer.style.display = 'none';
+                renderConfigPage();
+                showMessage("Custom stat added.");
+            });
+
+            // --- INITIALISATION ---
+            const init = () => {
+                if (localStorage.getItem(STORAGE_KEYS.stats) === null) {
+                    saveToStorage(STORAGE_KEYS.stats, DEFAULT_STATS);
+                }
+                
+                // Render initial player inputs on setup form
+                renderPlayerInputs(teamAPlayersDiv, 'a');
+                renderPlayerInputs(teamBPlayersDiv, 'b');
+                // Show default view
+                showView('setup');
+            };
+
+            init();
+        });
+    </script>
+</body>
+</html>
+
+
+
