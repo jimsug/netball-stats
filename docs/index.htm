@@ -765,7 +765,13 @@
                 state.activePlayer.name = player.name;
                 state.activePlayer.position = player.position;
                 btnEl.classList.add('selected');
-                recordStatHeader.textContent = `Record stat for selected player (${player.position} - ${player.name} ${teamName})`;
+                
+                const game = getGameById(state.currentGameId);
+                let teamName = '';
+                if (game) {
+                    teamName = (game.teamA.id === teamId) ? game.teamA.name : game.teamB.name;
+                }
+                recordStatHeader.textContent = `Record Stat for ${player.position} - ${player.name} (${teamName})`;
             };
             
             const clearActivePlayer = () => {
