@@ -102,7 +102,7 @@
                         <div class="flex gap-6">
                             <label class="flex items-center space-x-2 cursor-pointer">
                                 <input type="radio" name="tracking-mode" value="dual" class="form-radio text-blue-600" checked>
-                                <span class="text-lg">Track two teams</span>
+                                <span class="text-lg">Track both teams</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer">
                                 <input type="radio" name="tracking-mode" value="single" class="form-radio text-blue-600">
@@ -125,7 +125,7 @@
                     
                     <!-- Team B Setup -->
                     <fieldset id="team-b-setup" class="border rounded-lg p-4">
-                        <legend class="text-xl font-medium px-2">Their team</legend>
+                        <legend class="text-xl font-medium px-2">Away Team</legend>
                         <div class="mb-4">
                             <label for="team-b-name" class="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
                             <input type="text" id="team-b-name" class="w-full p-2 border rounded-md" placeholder="e.g., Swifts" required>
@@ -143,7 +143,7 @@
                 
                 <!-- Load Existing Game -->
                 <div class="mt-8 border-t pt-6">
-                    <h2 class="text-2xl font-semibold mb-4">Or load unfinished game</h2>
+                    <h2 class="text-2xl font-semibold mb-4">Or Load Unfinished Game</h2>
                     <select id="load-game-select" class="w-full p-2 border rounded-md mb-4">
                         <option value="">Select a game to resume...</option>
                     </select>
@@ -164,8 +164,7 @@
                     <div class="text-center">
                         <span id="live-quarter" class="text-xl font-semibold text-gray-700">Quarter 1</span>
                         <span id="live-timer" class="text-3xl font-bold text-gray-900 mx-6 block">15:00</span>
-                    </div>
-                    <button id="end-game" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold h-fit">End Game</button>
+                    </div>                    <button id="end-game" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold h-fit">End game</button>
                 </div>
 
                 <!-- Scoreboard: Teams & Manual Score -->
@@ -310,6 +309,16 @@
                 <!-- Manage Stats -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     <h2 class="text-2xl font-semibold mb-4">Manage Stats</h2>
+                    
+                    <div class="flex space-x-2 mb-4">
+                        <button id="restore-defaults-btn" class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 text-sm">
+                            Restore Missing Defaults
+                        </button>
+                        <button id="reset-defaults-btn" class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 text-sm">
+                            Reset to Default
+                        </button>
+                    </div>
+                    
                     <ul id="custom-stats-list" class="space-y-3">
                         <!-- Stats will be injected by JS -->
                     </ul>
@@ -454,6 +463,8 @@
             const statScoresCheckbox = $('#stat-scores');
             const statPointsContainer = $('#stat-points-container');
             const customStatsList = $('#custom-stats-list');
+            const restoreDefaultsBtn = $('#restore-defaults-btn');
+            const resetDefaultsBtn = $('#reset-defaults-btn');
 
             // Message Box
             const messageBox = $('#message-box');
@@ -771,7 +782,7 @@
                 if (game) {
                     teamName = (game.teamA.id === teamId) ? game.teamA.name : game.teamB.name;
                 }
-                recordStatHeader.textContent = `Record Stat for ${player.position} - ${player.name} (${teamName})`;
+                recordStatHeader.textContent = `Record stat for ${player.position} - ${player.name} (${teamName})`;
             };
             
             const clearActivePlayer = () => {
@@ -780,7 +791,7 @@
                 state.activePlayer.name = null;
                 state.activePlayer.position = null;
                 $$('.player-btn.selected').forEach(b => b.classList.remove('selected'));
-                recordStatHeader.textContent = 'Record stat for selected player (select a player)';
+                recordStatHeader.textContent = 'Record stat for selected player';
             };
 
             const handleStatSelect = (stat) => {
@@ -993,7 +1004,7 @@
                 const game = getGameById(gameId);
                 const allEvents = getFromStorage(STORAGE_KEYS.events);
                 const gameEvents = allEvents.filter(ev => ev.gameId === gameId);
-                
+                // Display title and score
                 statsGameTitle.textContent = `${game.teamA.name} vs ${game.teamB.name}`;
                 statsFinalScore.textContent = `${game.teamA.name} ${game.teamA.score} - ${game.teamB.score} ${game.teamB.name}`;
                 
@@ -1029,7 +1040,7 @@
                 // Build table
                 statsTableHead.innerHTML = '';
                 let headerRow = '<tr><th>Player</th><th>Team</th>';
-                gameStats.forEach(s => headerRow += `<th>${s.name}</th>`);
+                gameStats.forEach(s => headerRow += `<th>${s.name}</th>`); // NEW
                 headerRow += '</tr>';
                 statsTableHead.innerHTML = headerRow;
                 
@@ -1037,7 +1048,7 @@
                 for (const playerId in playerStats) {
                     const stats = playerStats[playerId];
                     let bodyRow = `<tr><td class="font-medium">${stats.name} (${stats.position})</td><td>${stats.team}</td>`;
-                    gameStats.forEach(s => bodyRow += `<td>${stats[s.id]}</td>`);
+                    gameStats.forEach(s => bodyRow += `<td>${stats[s.id]}</td>`); // NEW
                     bodyRow += '</tr>';
                     statsTableBody.innerHTML += bodyRow;
                 }
@@ -1057,10 +1068,8 @@
                 const gameEvents = allEvents.filter(ev => ev.gameId === gameId);
                 
                 let csvContent = "data:text/csv;charset=utf-8,";
-                // CSV Header
                 csvContent += "GameID,GameDate,TeamA,TeamB,EventID,Timestamp,Quarter,TeamName,PlayerID,PlayerName,PlayerPosition,StatID,StatName\r\n";
                 
-                // CSV Rows
                 gameEvents.forEach(event => {
                     const teamName = game.teamA.id === event.teamId ? game.teamA.name : game.teamB.name;
                     const row = [
@@ -1071,17 +1080,16 @@
                         event.id,
                         event.timestamp,
                         event.quarter,
-                        teamName, // Using name for readability, could use event.teamId
+                        teamName,
                         event.playerId,
                         event.playerName,
                         event.playerPosition,
                         event.statId,
                         event.statName
-                    ].map(val => `"${val}"`).join(","); // Quote all values
+                    ].map(val => `"${val}"`).join(",");
                     csvContent += row + "\r\n";
                 });
                 
-                // Create and trigger download link
                 const encodedUri = encodeURI(csvContent);
                 const link = document.createElement("a");
                 link.setAttribute("href", encodedUri);
@@ -1103,13 +1111,13 @@
                         <div>
                             <span class="font-medium">${stat.name}</span>
                             <span class="text-sm text-gray-600 ml-2">(${stat.type}, ${stat.score}pts)</span>
+                            ${!stat.isCustom ? '<span class="text-xs text-gray-400 ml-2 bg-gray-200 px-1.5 py-0.5 rounded-full">Default</span>' : ''}
                         </div>
-                        ${stat.isCustom ? `<button data-stat-id="${stat.id}" class="delete-stat-btn text-red-500 hover:text-red-700 font-medium">Delete</button>` : '<span class="text-sm text-gray-400">Default</span>'}
+                        <button data-stat-id="${stat.id}" class="delete-stat-btn text-red-500 hover:text-red-700 font-medium">Delete</button>
                     `;
                     customStatsList.appendChild(li);
                 });
                 
-                // Add event listeners to delete buttons
                 $$('.delete-stat-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const statId = e.target.dataset.statId;
@@ -1156,16 +1164,36 @@
                 showMessage("Custom stat added.");
             });
 
-            // --- INITIALISATION ---
+            restoreDefaultsBtn.addEventListener('click', () => {
+                let currentStats = getStats();
+                let addedCount = 0;
+                
+                DEFAULT_STATS.forEach(defaultStat => {
+                    const exists = currentStats.some(s => s.id === defaultStat.id);
+                    if (!exists) {
+                        currentStats.push(defaultStat);
+                        addedCount++;
+                    }
+                });
+                
+                saveToStorage(STORAGE_KEYS.stats, currentStats);
+                renderConfigPage();
+                showMessage(`Restored ${addedCount} default stat(s).`);
+            });
+
+            resetDefaultsBtn.addEventListener('click', () => {
+                saveToStorage(STORAGE_KEYS.stats, DEFAULT_STATS);
+                renderConfigPage();
+                showMessage("All stats have been reset to the default list.");
+            });
+
             const init = () => {
                 if (localStorage.getItem(STORAGE_KEYS.stats) === null) {
                     saveToStorage(STORAGE_KEYS.stats, DEFAULT_STATS);
                 }
                 
-                // Render initial player inputs on setup form
                 renderPlayerInputs(teamAPlayersDiv, 'a');
                 renderPlayerInputs(teamBPlayersDiv, 'b');
-                // Show default view
                 showView('setup');
             };
 
@@ -1174,6 +1202,3 @@
     </script>
 </body>
 </html>
-
-
-
