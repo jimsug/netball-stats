@@ -6,7 +6,6 @@
     <title>Netball Stats Tracker</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2248%22%20fill%3D%22%23F97316%22%2F%3E%3Cpath%20d%3D%22M%2050%2C2%20C%2075%2C25%2075%2C75%2050%2C98%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%226%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M%202%2C50%20C%2025%2C25%2075%2C25%2098%2C50%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%226%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E">
-    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter Font -->
@@ -15,38 +14,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Custom styles */
         body {
             font-family: 'Inter', sans-serif;
-            overscroll-behavior: none; /* Prevents pull-to-refresh on mobile */
+            overscroll-behavior: none;
+            @apply bg-gray-100;
         }
-        
-        /* Hide all pages by default */
         .page {
             display: none;
         }
-        
-        /* Show the active page */
         .page.active {
             display: block;
         }
-
-        /* Style for the "active" player button */
+        /* Highlight for selected player */
         .player-btn.selected {
             @apply ring-4 ring-offset-2 ring-blue-600 bg-blue-200 shadow-lg transform scale-105;
         }
-
         /* Player button in a flex row */
         .player-btn-flex {
-            @apply w-32 flex-shrink-0 p-3 border rounded-lg shadow-sm hover:bg-gray-100 text-left transition-all duration-150;
+            @apply w-32 flex-shrink-0 p-3 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 text-left transition-all duration-150;
         }
-
         /* Custom styling for stat buttons for better tap targets */
         .stat-btn {
-            @apply w-full h-full p-2 text-center text-sm font-semibold rounded-lg shadow-md transition-all duration-150 active:transform active:scale-95;
+            @apply w-full h-full p-2 text-center text-sm font-semibold rounded-lg shadow-md transition-all duration-150 active:transform active:scale-95 border border-gray-300;
         }
-        
-        /* Specific colors for stat types */
         .stat-btn-positive {
             @apply bg-green-500 text-white hover:bg-green-600;
         }
@@ -59,20 +49,29 @@
         .stat-btn-penalty {
              @apply bg-yellow-500 text-black hover:bg-yellow-600;
         }
-        
         /* Custom message box */
         #message-box {
             transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
-
-        /* Table styling for stats page */
+        /* Stats table styling */
         #stats-table th, #stats-table td {
             @apply p-2 border border-gray-300 text-left;
         }
         #stats-table th {
             @apply bg-gray-100;
         }
-
+        #stats-table tfoot th, #stats-table tfoot td {
+            @apply font-bold bg-gray-200;
+        }
+        .stat-zero {
+            @apply text-gray-400;
+        }
+        .stat-high-pos, .stat-low-neg {
+            @apply bg-green-100 font-bold;
+        }
+        .stat-low-pos, .stat-high-neg {
+            @apply bg-red-100 font-bold;
+        }
         /* Hide number input arrows */
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
@@ -82,7 +81,6 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
-
         /* Custom scrollbar for player lists */
         .player-list-container::-webkit-scrollbar {
             height: 8px;
@@ -102,17 +100,15 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-    <!-- Main Application Container -->
     <div class="container mx-auto max-w-6xl p-4">
-
-        <!-- Header and Navigation -->
+        <!-- Header -->
         <header class="bg-white p-4 rounded-lg shadow-md mb-6">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <h1 class="text-3xl font-bold text-blue-700">Netball Stats Tracker</h1>
                 <nav class="mt-4 md:mt-0">
-                    <button data-view="setup" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200 active">Game Setup</button>
-                    <button data-view="live" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">Live Game</button>
-                    <button data-view="stats" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">View Stats</button>
+                    <button data-view="setup" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200 active">Game setup</button>
+                    <button data-view="live" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">Live game</button>
+                    <button data-view="stats" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">View stats</button>
                     <button data-view="config" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">Config</button>
                     <button data-view="help" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">Help</button>
                 </nav>
@@ -122,32 +118,30 @@
         <!-- Page: Game Setup -->
         <main id="page-setup" class="page active">
             <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h2 class="text-2xl font-semibold mb-4">Start a New Game</h2>
+                <h2 class="text-2xl font-semibold mb-4">Start a new game</h2>
                 
                 <form id="setup-form" class="space-y-6">
-                    <!-- Tracking Mode -->
                     <fieldset class="border rounded-lg p-4">
-                        <legend class="text-xl font-medium px-2">Tracking Mode</legend>
+                        <legend class="text-xl font-medium px-2">Tracking mode</legend>
                         <div class="flex gap-6">
                             <label class="flex items-center space-x-2 cursor-pointer">
                                 <input type="radio" name="tracking-mode" value="dual" class="form-radio text-blue-600" checked>
-                                <span class="text-lg">Track Two Teams</span>
+                                <span class="text-lg">Track both teams</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer">
                                 <input type="radio" name="tracking-mode" value="single" class="form-radio text-blue-600">
-                                <span class="text-lg">Track One Team</span>
+                                <span class="text-lg">Track one team</span>
                             </label>
                         </div>
                     </fieldset>
 
-                    <!-- Team A Setup -->
                     <fieldset class="border rounded-lg p-4">
-                        <legend class="text-xl font-medium px-2">Home Team</legend>
+                        <legend class="text-xl font-medium px-2">Our team</legend>
                         <div class="mb-4">
-                            <label for="team-a-name" class="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
+                            <label for="team-a-name" class="block text-sm font-medium text-gray-700 mb-1">Team name</label>
                             <input type="text" id="team-a-name" class="w-full p-2 border rounded-md" placeholder="e.g., Vixens" required>
                         </div>
-                        <h4 class="font-medium mb-2">Players (Enter 7 positions)</h4>
+                        <h4 class="font-medium mb-2">Players (enter 7 positions)</h4>
                         <div id="team-a-players" class="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <!-- Player inputs will be injected by JS -->
                         </div>
@@ -155,30 +149,30 @@
                     
                     <!-- Team B Setup -->
                     <fieldset id="team-b-setup" class="border rounded-lg p-4">
-                        <legend class="text-xl font-medium px-2">Away Team</legend>
+                        <legend class="text-xl font-medium px-2">Away team</legend>
                         <div class="mb-4">
-                            <label for="team-b-name" class="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
+                            <label for="team-b-name" class="block text-sm font-medium text-gray-700 mb-1">Team name</label>
                             <input type="text" id="team-b-name" class="w-full p-2 border rounded-md" placeholder="e.g., Swifts" required>
                         </div>
-                        <h4 class="font-medium mb-2">Players (Enter 7 positions)</h4>
+                        <h4 class="font-medium mb-2">Players (enter 7 positions)</h4>
                         <div id="team-b-players" class="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <!-- Player inputs will be injected by JS -->
                         </div>
                     </fieldset>
 
                     <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-blue-700 transition-all">
-                        Start Game
+                        Start game
                     </button>
                 </form>
                 
                 <!-- Load Existing Game -->
                 <div class="mt-8 border-t pt-6">
-                    <h2 class="text-2xl font-semibold mb-4">Or Load Unfinished Game</h2>
+                    <h2 class="text-2xl font-semibold mb-4">Or load unfinished game</h2>
                     <select id="load-game-select" class="w-full p-2 border rounded-md mb-4">
                         <option value="">Select a game to resume...</option>
                     </select>
                     <button id="load-game-btn" class="w-full bg-gray-600 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-gray-700 transition-all">
-                        Load Game
+                        Load game
                     </button>
                 </div>
             </div>
@@ -194,7 +188,8 @@
                     <div class="text-center">
                         <span id="live-quarter" class="text-xl font-semibold text-gray-700">Quarter 1</span>
                         <span id="live-timer" class="text-3xl font-bold text-gray-900 mx-6 block">15:00</span>
-                    </div>                    <button id="end-game" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold h-fit">End game</button>
+                    </div>
+                    <button id="end-game" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold h-fit">End full game</button>
                 </div>
 
                 <!-- Scoreboard: Teams & Manual Score -->
@@ -214,7 +209,7 @@
                         <button id="timer-start" class="bg-green-500 text-white px-4 py-2 rounded-lg font-medium">Start</button>
                         <button id="timer-pause" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-medium">Pause</button>
                         <button id="timer-reset" class="bg-gray-500 text-white px-4 py-2 rounded-lg font-medium">Reset</button>
-                        <button id="end-quarter" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">End Qtr</button>
+                        <button id="end-quarter" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">End qtr</button>
                     </div>
 
                     <!-- Team B -->
@@ -250,7 +245,7 @@
 
             <!-- Stat Buttons -->
             <div class="bg-white p-4 rounded-lg shadow-lg mt-4">
-                <h3 id="record-stat-header" class="text-lg font-semibold mb-3 text-center">Record Stat for Selected Player</h3>
+                <h3 id="record-stat-header" class="text-lg font-semibold mb-3 text-center">Record stat for selected player</h3>
                 <div id="stat-buttons" class="grid grid-cols-3 md:grid-cols-6 gap-3">
                     <!-- Stat buttons injected by JS -->
                 </div>
@@ -258,8 +253,8 @@
             
             <!-- Game Event Log -->
             <div class="bg-white p-4 rounded-lg shadow-lg mt-4">
-                <h3 class="text-lg font-semibold mb-3 text-center">Live Event Log (Last 10)</h3>
-                <button id="undo-last" class="w-full bg-gray-800 text-white py-2 rounded-lg mb-3 hover:bg-gray-700">Undo Last</button>
+                <h3 class="text-lg font-semibold mb-3 text-center">Live event log (last 10)</h3>
+                <button id="undo-last" class="w-full bg-gray-800 text-white py-2 rounded-lg mb-3 hover:bg-gray-700">Undo last</button>
                 <ul id="event-log" class="text-sm space-y-2 h-48 overflow-y-auto border rounded-lg p-2">
                     <!-- Log items injected by JS -->
                 </ul>
@@ -269,30 +264,30 @@
         <!-- Page: View Stats -->
         <main id="page-stats" class="page">
             <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h2 class="text-2xl font-semibold mb-4">View Game Statistics</h2>
+                <h2 class="text-2xl font-semibold mb-4">View game statistics</h2>
                 
-                <label for="stats-game-select" class="block text-sm font-medium text-gray-700 mb-1">Select a Game</label>
+                <label for="stats-game-select" class="block text-sm font-medium text-gray-700 mb-1">Select a game</label>
                 <select id="stats-game-select" class="w-full p-2 border rounded-md mb-4">
                     <option value="">Select a finished game...</option>
                 </select>
 
                 <div id="stats-output" class="hidden">
                     <div class="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-4">
-                        <h3 id="stats-game-title" class="text-xl font-semibold">Game Stats</h3>
-                        <div class="flex space-x-2 flex-wrap gap-2">
+                        <h3 id="stats-game-title" class="text-xl font-semibold">Game stats</h3>
+                        <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                             <button id="export-csv-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 w-full md:w-auto">
-                                Export Raw CSV
+                                Export raw CSV
                             </button>
                             <button id="delete-game-btn" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 w-full md:w-auto">
-                                🗑️ Delete this game
+                                Delete this game
                             </button>
                         </div>
                     </div>
                     
-                    <h4 class="text-lg font-medium mt-4 mb-2">Final Score</h4>
+                    <h4 class="text-lg font-medium mt-4 mb-2">Final score</h4>
                     <p id="stats-final-score" class="text-2xl font-bold mb-4"></p>
 
-                    <h4 class="text-lg font-medium mt-4 mb-2">Player Statistics</h4>
+                    <h4 class="text-lg font-medium mt-4 mb-2">Player statistics</h4>
                     <div class="overflow-x-auto">
                         <table id="stats-table" class="w-full border-collapse">
                             <thead id="stats-table-head">
@@ -301,16 +296,19 @@
                             <tbody id="stats-table-body">
                                 <!-- Body generated by JS -->
                             </tbody>
+                            <tfoot id="stats-table-foot">
+                                <!-- Footer generated by JS -->
+                            </tfoot>
                         </table>
                     </div>
                 </div>
 
                 <!-- Danger Zone -->
-                <div class="mt-8 border-t pt-6">
-                    <h3 class="text-xl font-semibold mb-3 text-red-700">Danger Zone</h3>
-                    <p class="text-gray-600 mb-4">This action cannot be undone. This will permanently delete all game and event data.</p>
-                    <button id="delete-all-games-btn" class="w-full md:w-auto bg-red-800 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-900">
-                        🗑️ Delete all games & data
+                <div class="mt-8 border-t border-red-300 pt-6">
+                    <h2 class="text-xl font-semibold mb-4 text-red-700">Danger zone</h2>
+                    <p class="text-gray-700 mb-4">This action cannot be undone. This will permanently delete all saved games and event data from your device.</p>
+                    <button id="delete-all-games-btn" class="w-full md:w-auto bg-red-700 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-red-800 transition-all">
+                        Delete all games & data
                     </button>
                 </div>
             </div>
@@ -321,14 +319,14 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Add New Stat -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <h2 class="text-2xl font-semibold mb-4">Add Custom Stat</h2>
+                    <h2 class="text-2xl font-semibold mb-4">Add custom stat</h2>
                     <form id="add-stat-form" class="space-y-4">
                         <div>
-                            <label for="stat-name" class="block text-sm font-medium text-gray-700">Stat Name</label>
+                            <label for="stat-name" class="block text-sm font-medium text-gray-700">Stat name</label>
                             <input type="text" id="stat-name" class="w-full p-2 border rounded-md mt-1" placeholder="e.g., Deflection" required>
                         </div>
                         <div>
-                            <label for="stat-type" class="block text-sm font-medium text-gray-700">Stat Type</label>
+                            <label for="stat-type" class="block text-sm font-medium text-gray-700">Stat type</label>
                             <select id="stat-type" class="w-full p-2 border rounded-md mt-1 bg-white">
                                 <option value="positive">Positive</option>
                                 <option value="negative">Negative</option>
@@ -338,28 +336,28 @@
                         </div>
                         <div class="flex items-center space-x-3">
                             <input type="checkbox" id="stat-scores" class="h-4 w-4 text-blue-600 rounded border-gray-300">
-                            <label for="stat-scores" class="text-sm font-medium text-gray-700">Scores Points?</label>
+                            <label for="stat-scores" class="text-sm font-medium text-gray-700">Scores points?</label>
                         </div>
                         <div id="stat-points-container" class="hidden">
-                             <label for="stat-points" class="block text-sm font-medium text-gray-700">Points Value</label>
+                             <label for="stat-points" class="block text-sm font-medium text-gray-700">Points value</label>
                              <input type="number" id="stat-points" value="1" min="1" class="w-full p-2 border rounded-md mt-1">
                         </div>
                         <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">
-                            Add Stat
+                            Add stat
                         </button>
                     </form>
                 </div>
 
                 <!-- Manage Stats -->
                 <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <h2 class="text-2xl font-semibold mb-4">Manage Stats</h2>
+                    <h2 class="text-2xl font-semibold mb-4">Manage stats</h2>
                     
                     <div class="flex space-x-2 mb-4">
                         <button id="restore-defaults-btn" class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 text-sm">
-                            Restore Missing Defaults
+                            Restore missing defaults
                         </button>
                         <button id="reset-defaults-btn" class="w-full bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 text-sm">
-                            Reset to Default
+                            Reset to default
                         </button>
                     </div>
                     
@@ -373,31 +371,31 @@
         <!-- Page: Help -->
         <main id="page-help" class="page">
             <div class="bg-white p-6 rounded-lg shadow-lg prose max-w-none">
-                <h2 class="text-2xl font-semibold mb-4">How to Use</h2>
+                <h2 class="text-2xl font-semibold mb-4">How to use</h2>
                 <ol class="list-decimal list-inside space-y-3">
                     <li>
                         <strong>Config:</strong> (Optional) Go to the 'Config' page to add your own custom stats. You can define the name, type (positive, negative, etc.), and whether it scores points.
                     </li>
                     <li>
-                        <strong>Game Setup:</strong> Go to the 'Game Setup' page. Choose to track one or two teams, enter the team and player names, and hit "Start Game". You can also load an unfinished game from this page.
+                        <strong>Game setup:</strong> Go to the 'Game setup' page. Choose to track one or two teams, enter the team and player names, and hit "Start game". You can also load an unfinished game from this page.
                     </li>
                     <li>
-                        <strong>Live Game:</strong> This is where you'll spend game time.
+                        <strong>Live game:</strong> This is where you'll spend game time.
                         <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
                             <li>To record a stat, <strong>tap a player first</strong> (they will be highlighted), then <strong>tap the stat</strong> you want to record.</li>
                             <li>The header will show you which player is currently selected.</li>
-                            <li>Use the timer controls (Start, Pause, Reset, End Qtr) to manage the game clock.</li>
+                            <li>Use the timer controls (Start, Pause, Reset, End qtr) to manage the game clock.</li>
                             <li>You can manually adjust the main score using the "+" and "-" buttons if needed.</li>
-                            <li>Use "Undo Last Event" to remove the most recent stat entry.</li>
-                            <li>Click "End Full Game" when the match is over.</li>
+                            <li>Use "Undo last" to remove the most recent stat entry.</li>
+                            <li>Click "End full game" when the match is over.</li>
                         </ul>
                     </li>
                     <li>
-                        <strong>View Stats:</strong> Go here after a game. Select a finished game from the dropdown to see a summary table of all player stats. You can also export the raw event log for that game to a CSV file for your own analysis in Excel or Google Sheets.
+                        <strong>View stats:</strong> Go here after a game. Select a finished game from the dropdown to see a summary table of all player stats. You can also export the raw event log for that game to a CSV file for your own analysis in Excel or Google Sheets.
                     </li>
                 </ol>
 
-                <h2 class="text-2xl font-semibold mt-8 mb-4">Feedback & Support</h2>
+                <h2 class="text-2xl font-semibold mt-8 mb-4">Feedback & support</h2>
                 <p>
                     This app runs entirely in your browser and saves all data to your device's local storage. No data is sent to any server.
                 </p>
@@ -408,29 +406,29 @@
             </div>
         </main>
 
-
     </div>
     
     <!-- Floating Message Box -->
-    <div id="message-box" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl opacity-0 transform translate-y-4 pointer-events-none z-40">
+    <div id="message-box" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl opacity-0 transform translate-y-4 pointer-events-none">
         <span id="message-text">Message</span>
     </div>
 
-    <!-- Confirmation Modal -->
-    <div id="modal-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div id="modal-content" class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h3 id="modal-title" class="text-2xl font-bold mb-4">Are you sure?</h3>
-            <p id="modal-message" class="text-gray-700 mb-6">This action cannot be undone.</p>
+    <!-- Custom Confirmation Modal -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <h3 id="confirm-title" class="text-xl font-bold mb-4">Are you sure?</h3>
+            <p id="confirm-text" class="text-gray-700 mb-6">This action cannot be undone.</p>
             <div class="flex justify-end space-x-4">
-                <button id="modal-cancel-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300">
+                <button id="confirm-cancel-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium">
                     Cancel
                 </button>
-                <button id="modal-confirm-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700">
-                    Confirm
+                <button id="confirm-ok-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold">
+                    Delete
                 </button>
             </div>
         </div>
     </div>
+
 
     <!-- JavaScript Application Logic -->
     <script>
@@ -438,6 +436,7 @@
 
             // --- CONSTANTS ---
             const POSITIONS = ['GS', 'GA', 'WA', 'C', 'WD', 'GD', 'GK'];
+            // Note: `id` must be stable to allow restoring defaults
             const DEFAULT_STATS = [
                 { name: 'Goal Scored', id: 'goal_scored', type: 'positive', score: 1, isCustom: false },
                 { name: 'Goal Missed', id: 'goal_missed', type: 'negative', score: 0, isCustom: false },
@@ -468,7 +467,8 @@
                 timer: {
                     interval: null,
                     secondsRemaining: 15 * 60 // 15 minutes
-                }
+                },
+                confirmCallback: null // Stores the 'OK' action for the modal
             };
 
             // --- DOM ELEMENTS ---
@@ -516,9 +516,10 @@
             const statsFinalScore = $('#stats-final-score');
             const statsTableHead = $('#stats-table-head');
             const statsTableBody = $('#stats-table-body');
+            const statsTableFoot = $('#stats-table-foot');
             const exportCsvBtn = $('#export-csv-btn');
-            const deleteGameBtn = $('#delete-game-btn'); // New
-            const deleteAllGamesBtn = $('#delete-all-games-btn'); // New
+            const deleteGameBtn = $('#delete-game-btn');
+            const deleteAllGamesBtn = $('#delete-all-games-btn'); // Fixed: defined globally
             
             // Config Page Elements
             const addStatForm = $('#add-stat-form');
@@ -532,16 +533,12 @@
             const messageBox = $('#message-box');
             const messageText = $('#message-text');
 
-            // --- NEW: Modal Elements ---
-            const modalOverlay = $('#modal-overlay');
-            const modalTitle = $('#modal-title');
-            const modalMessage = $('#modal-message');
-            const modalCancelBtn = $('#modal-cancel-btn');
-            const modalConfirmBtn = $('#modal-confirm-btn');
-
-            // --- NEW: Modal State ---
-            let confirmCallback = null;
-
+            // Modal Elements
+            const confirmModal = $('#confirm-modal');
+            const confirmTitle = $('#confirm-title');
+            const confirmText = $('#confirm-text');
+            const confirmCancelBtn = $('#confirm-cancel-btn');
+            const confirmOkBtn = $('#confirm-ok-btn');
 
             // --- STORAGE FUNCTIONS ---
             const getFromStorage = (key) => {
@@ -563,6 +560,7 @@
                 }
             };
             
+            // Gets combined list of default + custom stats
             const getStats = () => {
                 return getFromStorage(STORAGE_KEYS.stats);
             };
@@ -587,30 +585,35 @@
                 }, duration);
             };
 
-            // --- NEW: Modal Functions ---
-            const showModal = (title, message, onConfirm) => {
-                modalTitle.textContent = title;
-                modalMessage.textContent = message;
-                confirmCallback = onConfirm;
-                modalOverlay.classList.remove('hidden');
+            // --- MODAL FUNCTIONS ---
+            const showConfirmModal = (title, text, okLabel, okCallback) => {
+                confirmTitle.textContent = title;
+                confirmText.textContent = text;
+                confirmOkBtn.textContent = okLabel;
+                state.confirmCallback = okCallback;
+                
+                confirmModal.classList.remove('hidden');
+                confirmModal.classList.add('flex');
             };
 
-            const hideModal = () => {
-                modalOverlay.classList.add('hidden');
-                confirmCallback = null;
+            const hideConfirmModal = () => {
+                confirmModal.classList.add('hidden');
+                confirmModal.classList.remove('flex');
+                state.confirmCallback = null;
             };
 
-            // Add listeners for modal buttons
-            modalCancelBtn.addEventListener('click', hideModal);
-            modalConfirmBtn.addEventListener('click', () => {
-                if (typeof confirmCallback === 'function') {
-                    confirmCallback();
+            confirmOkBtn.addEventListener('click', () => {
+                if (typeof state.confirmCallback === 'function') {
+                    state.confirmCallback();
                 }
-                hideModal();
+                hideConfirmModal();
             });
 
+            confirmCancelBtn.addEventListener('click', hideConfirmModal);
+
+
             // --- NAVIGATION ---
-            const showView = (viewId) => {
+            const showView = (viewId, param = null) => {
                 state.currentView = viewId;
                 pages.forEach(page => page.classList.toggle('active', page.id === `page-${viewId}`));
                 navButtons.forEach(btn => {
@@ -621,6 +624,11 @@
                 // Refresh data on view change
                 if (viewId === 'stats') {
                     renderStatsPage();
+                    // If a gameId was passed (e.g., from finishing a game), select it
+                    if (param) {
+                        statsGameSelect.value = param;
+                        statsGameSelect.dispatchEvent(new Event('change'));
+                    }
                 }
                 if (viewId === 'setup') {
                     renderSetupPage();
@@ -691,11 +699,11 @@
                 const teamBPlayers = (trackingMode === 'dual') ? getPlayers('b') : [];
                 
                 if (teamAPlayers.some(p => !p.name)) {
-                    showMessage("Please enter all 7 player names for the Home Team.");
+                    showMessage("Please enter all 7 player names for the home team.");
                     return;
                 }
                 if (trackingMode === 'dual' && teamBPlayers.some(p => !p.name)) {
-                    showMessage("Please enter all 7 player names for the Away Team.");
+                    showMessage("Please enter all 7 player names for the away team.");
                     return;
                 }
 
@@ -826,7 +834,7 @@
                 playerListB.classList.toggle('pointer-events-none', isFinished);
                 
                 if (isFinished) {
-                    showMessage("This game is finished. View stats on the 'View Stats' page.");
+                    showMessage("This game is finished. View stats on the 'View stats' page.");
                 }
             };
             
@@ -896,7 +904,7 @@
                 }
                 
                 const game = getGameById(state.currentGameId);
-                if (game.isFinished) {
+                if (!game || game.isFinished) {
                     showMessage("Game is finished. Cannot add new stats.");
                     return;
                 }
@@ -986,15 +994,26 @@
                 if (logItem) logItem.remove();
 
                 // Revert score if it was a goal
-                const stat = getStats().find(s => s.id === lastEvent.statId);
+                // Find stat in *all* stats (even deleted ones) by checking event data
+                const allStats = getStats();
+                let stat = allStats.find(s => s.id === lastEvent.statId);
+                // If stat was deleted from config, reconstruct it from the event
+                if (!stat) {
+                    stat = { id: lastEvent.statId, name: lastEvent.statName, score: 0 };
+                    // A bit of a guess: if it was a "Goal Scored", assume 1 point
+                    if (lastEvent.statId === 'goal_scored') {
+                        stat.score = 1;
+                    }
+                }
+                
                 if (stat && stat.score && stat.score > 0) {
                     const games = getFromStorage(STORAGE_KEYS.games);
                     const gameIndex = games.findIndex(g => g.id === state.currentGameId);
                     
                     if (games[gameIndex].teamA.id === lastEvent.teamId) {
-                        games[gameIndex].teamA.score -= stat.score;
+                        games[gameIndex].teamA.score = Math.max(0, games[gameIndex].teamA.score - stat.score);
                     } else {
-                        games[gameIndex].teamB.score -= stat.score;
+                        games[gameIndex].teamB.score = Math.max(0, games[gameIndex].teamB.score - stat.score);
                     }
                     saveToStorage(STORAGE_KEYS.games, games);
                     updateScoreboard(games[gameIndex]);
@@ -1050,26 +1069,32 @@
                     saveToStorage(STORAGE_KEYS.games, games);
                     showMessage(`Quarter ${game.currentQuarter - 1} ended. Starting Quarter ${game.currentQuarter}.`);
                 } else {
-                    handleEndGame();
+                    handleEndGame(true); // true = auto-nav to stats
                 }
             });
             
-            endGameBtn.addEventListener('click', handleEndGame);
+            endGameBtn.addEventListener('click', () => handleEndGame(true));
 
-            function handleEndGame() {
+            function handleEndGame(autoNavigate = false) {
                 stopTimer();
                 let games = getFromStorage(STORAGE_KEYS.games);
                 const gameIndex = games.findIndex(g => g.id === state.currentGameId);
                 if (gameIndex === -1) return;
                 
+                const gameId = games[gameIndex].id;
                 games[gameIndex].isFinished = true;
                 saveToStorage(STORAGE_KEYS.games, games);
                 
                 liveQuarterEl.textContent = `Final (Q${games[gameIndex].currentQuarter})`;
-                showMessage("Game Finished! Stats are now available.");
+                showMessage("Game finished! Stats are now available.");
                 
                 // Disable all live game controls
                 renderLiveGame(state.currentGameId);
+
+                // Auto-navigate to stats page for this game
+                if (autoNavigate) {
+                    showView('stats', gameId);
+                }
             };
             
 
@@ -1079,6 +1104,14 @@
                 const finishedGames = games.filter(g => g.isFinished);
                 
                 statsGameSelect.innerHTML = '<option value="">Select a finished game...</option>';
+                // Sort games from newest to oldest
+                finishedGames.sort((a, b) => {
+                    // Simple sort, assumes games are added sequentially
+                    const aId = parseInt(a.id.split('_')[1]);
+                    const bId = parseInt(b.id.split('_')[1]);
+                    return bId - aId;
+                });
+
                 finishedGames.forEach(game => {
                     const option = document.createElement('option');
                     option.value = game.id;
@@ -1097,13 +1130,12 @@
                 }
                 
                 const game = getGameById(gameId);
-                // --- FIX: Add check for valid game object ---
                 if (!game) {
                     statsOutput.classList.add('hidden');
-                    showMessage("Error: Could not load data for the selected game.");
+                    showMessage("Error: Could not load game data.");
                     return;
                 }
-                
+
                 const allEvents = getFromStorage(STORAGE_KEYS.events);
                 const gameEvents = allEvents.filter(ev => ev.gameId === gameId);
                 
@@ -1111,67 +1143,126 @@
                 statsGameTitle.textContent = `${game.teamA.name} vs ${game.teamB.name}`;
                 statsFinalScore.textContent = `${game.teamA.name} ${game.teamA.score} - ${game.teamB.score} ${game.teamB.name}`;
                 
-                // Aggregate stats
-                
-                // --- NEW LOGIC ---
-                // 1. & 2. Create a map of all stats that occurred in this game
+                // Get a unique list of all stats *recorded in this game*
                 const gameStatsMap = new Map();
                 gameEvents.forEach(event => {
                     if (!gameStatsMap.has(event.statId)) {
-                        gameStatsMap.set(event.statId, event.statName);
+                        // Find the stat 'type' from the master config to enable highlighting
+                        const masterStats = getStats();
+                        const statConfig = masterStats.find(s => s.id === event.statId);
+                        const statType = statConfig ? statConfig.type : 'neutral';
+                        
+                        gameStatsMap.set(event.statId, { 
+                            name: event.statName, 
+                            type: statType 
+                        });
                     }
                 });
 
-                // 3. Create an array of stat objects
-                const gameStats = Array.from(gameStatsMap, ([id, name]) => ({ id, name }));
+                // Convert map to sorted array
+                const gameStats = Array.from(gameStatsMap.entries(), ([id, data]) => ({ id, name: data.name, type: data.type }));
+                gameStats.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
                 
-                // Sort stats alphabetically by name for consistent column order
-                // --- FIX: Make sort safer against null/undefined names ---
-                gameStats.sort((a, b) => {
-                    const nameA = a.name || '';
-                    const nameB = b.name || '';
-                    return nameA.localeCompare(nameB);
-                });
-                // --- END FIX ---
+                // --- Build Stats Data ---
+                const allPlayers = [
+                    ...game.teamA.players.map(p => ({...p, teamId: game.teamA.id, teamName: game.teamA.name})),
+                    ...game.teamB.players.map(p => ({...p, teamId: game.teamB.id, teamName: game.teamB.name}))
+                ];
                 
-                const allPlayers = [...game.teamA.players, ...game.teamB.players];
                 const playerStats = {};
-                // const currentStats = getStats(); // OLD
+                const teamTotals = {
+                    [game.teamA.id]: { teamName: game.teamA.name },
+                    [game.teamB.id]: { teamName: game.teamB.name },
+                    overall: { teamName: 'Overall Total' }
+                };
 
+                // Initialize player and total objects
                 allPlayers.forEach(p => {
                     playerStats[p.id] = {
                         name: p.name,
                         position: p.position,
-                        team: (game.teamA.players.some(pA => pA.id === p.id)) ? game.teamA.name : game.teamB.name,
+                        team: p.teamName,
+                        teamId: p.teamId,
                     };
-                    // currentStats.forEach(s => playerStats[p.id][s.id] = 0); // OLD
-                    // NEW: Initialize all stats from gameStats to 0 for each player
                     gameStats.forEach(s => playerStats[p.id][s.id] = 0);
                 });
+                [game.teamA.id, game.teamB.id, 'overall'].forEach(key => {
+                     gameStats.forEach(s => teamTotals[key][s.id] = 0);
+                });
 
+                // Tally events
                 gameEvents.forEach(event => {
                     if (playerStats[event.playerId] && playerStats[event.playerId].hasOwnProperty(event.statId)) {
                         playerStats[event.playerId][event.statId]++;
+                        teamTotals[event.teamId][event.statId]++;
+                        teamTotals.overall[event.statId]++;
                     }
                 });
                 
-                // Build table
+                // --- Find Highs/Lows ---
+                const statExtremes = {}; // { statId: { teamId: { high: 0, low: 999 }, ... } }
+                gameStats.forEach(s => {
+                    statExtremes[s.id] = {
+                        [game.teamA.id]: { high: -Infinity, low: Infinity },
+                        [game.teamB.id]: { high: -Infinity, low: Infinity }
+                    };
+
+                    allPlayers.forEach(p => {
+                        const val = playerStats[p.id][s.id];
+                        if (val > statExtremes[s.id][p.teamId].high) statExtremes[s.id][p.teamId].high = val;
+                        if (val < statExtremes[s.id][p.teamId].low) statExtremes[s.id][p.teamId].low = val;
+                    });
+                });
+
+                // --- Build Table ---
                 statsTableHead.innerHTML = '';
                 let headerRow = '<tr><th>Player</th><th>Team</th>';
-                // currentStats.forEach(s => headerRow += `<th>${s.name}</th>`); // OLD
-                gameStats.forEach(s => headerRow += `<th>${s.name}</th>`); // NEW
+                gameStats.forEach(s => headerRow += `<th>${s.name}</th>`);
                 headerRow += '</tr>';
                 statsTableHead.innerHTML = headerRow;
                 
                 statsTableBody.innerHTML = '';
-                for (const playerId in playerStats) {
-                    const stats = playerStats[playerId];
+                allPlayers.forEach(p => {
+                    const stats = playerStats[p.id];
                     let bodyRow = `<tr><td class="font-medium">${stats.name} (${stats.position})</td><td>${stats.team}</td>`;
-                    // currentStats.forEach(s => bodyRow += `<td>${stats[s.id]}</td>`); // OLD
-                    gameStats.forEach(s => bodyRow += `<td>${stats[s.id]}</td>`); // NEW
+                    
+                    gameStats.forEach(s => {
+                        const val = stats[s.id];
+                        let cellClass = '';
+                        if (val === 0) {
+                            cellClass = 'stat-zero';
+                        } else {
+                            const extremes = statExtremes[s.id][p.teamId];
+                            if (s.type === 'positive' || s.type === 'neutral') {
+                                if (val === extremes.high && val > 0) cellClass = 'stat-high-pos';
+                                if (val === extremes.low && val < extremes.high) cellClass = 'stat-low-pos';
+                            } else { // negative or penalty
+                                if (val === extremes.high && val > 0) cellClass = 'stat-high-neg';
+                                if (val === extremes.low && val < extremes.high) cellClass = 'stat-low-neg';
+                            }
+                        }
+                        bodyRow += `<td class="${cellClass}">${val}</td>`;
+                    });
                     bodyRow += '</tr>';
                     statsTableBody.innerHTML += bodyRow;
+                });
+
+                // Build Footer (Totals)
+                statsTableFoot.innerHTML = '';
+                const buildTotalRow = (teamKey) => {
+                    let row = `<tr><th>${teamTotals[teamKey].teamName}</th><th>Total</th>`;
+                    gameStats.forEach(s => {
+                        row += `<td>${teamTotals[teamKey][s.id]}</td>`;
+                    });
+                    row += '</tr>';
+                    return row;
+                };
+
+                statsTableFoot.innerHTML += buildTotalRow(game.teamA.id);
+                if (game.trackingMode === 'dual') {
+                    statsTableFoot.innerHTML += buildTotalRow(game.teamB.id);
                 }
+                statsTableFoot.innerHTML += buildTotalRow('overall');
 
                 statsOutput.classList.remove('hidden');
             });
@@ -1184,41 +1275,37 @@
                 }
                 
                 const game = getGameById(gameId);
-                // --- FIX: Add check for valid game object ---
                 if (!game) {
-                    showMessage("Error: Could not load game data for export.");
+                    showMessage("Error finding game data.");
                     return;
                 }
-                
+
                 const allEvents = getFromStorage(STORAGE_KEYS.events);
                 const gameEvents = allEvents.filter(ev => ev.gameId === gameId);
                 
                 let csvContent = "data:text/csv;charset=utf-8,";
-                // CSV Header
                 csvContent += "GameID,GameDate,TeamA,TeamB,EventID,Timestamp,Quarter,TeamName,PlayerID,PlayerName,PlayerPosition,StatID,StatName\r\n";
                 
-                // CSV Rows
                 gameEvents.forEach(event => {
-                    const teamName = game.teamA.id === event.teamId ? game.teamA.name : game.teamB.name;
+                    const teamName = game.teamA.id === event.teamId ? game.teamA.name.replace(/"/g, '""') : game.teamB.name.replace(/"/g, '""');
                     const row = [
                         game.id,
                         game.date,
-                        game.teamA.name,
-                        game.teamB.name,
+                        game.teamA.name.replace(/"/g, '""'),
+                        game.teamB.name.replace(/"/g, '""'),
                         event.id,
                         event.timestamp,
                         event.quarter,
-                        teamName, // Using name for readability, could use event.teamId
+                        teamName,
                         event.playerId,
-                        event.playerName,
+                        event.playerName.replace(/"/g, '""'),
                         event.playerPosition,
                         event.statId,
-                        event.statName
-                    ].map(val => `"${val}"`).join(","); // Quote all values
+                        event.statName.replace(/"/g, '""')
+                    ].map(val => `"${val}"`).join(",");
                     csvContent += row + "\r\n";
                 });
                 
-                // Create and trigger download link
                 const encodedUri = encodeURI(csvContent);
                 const link = document.createElement("a");
                 link.setAttribute("href", encodedUri);
@@ -1228,56 +1315,53 @@
                 document.body.removeChild(link);
             });
 
-            // --- NEW DELETE GAME LISTENERS ---
-            
             deleteGameBtn.addEventListener('click', () => {
                 const gameId = statsGameSelect.value;
                 if (!gameId) {
                     showMessage("Please select a game to delete.");
                     return;
                 }
-                
                 const game = getGameById(gameId);
-                const gameName = game ? `${game.teamA.name} vs ${game.teamB.name}` : 'this game';
+                if (!game) return;
 
-                showModal(
-                    "Delete Game?",
-                    `Are you sure you want to permanently delete "${gameName}" and all its associated events? This action cannot be undone.`,
+                showConfirmModal(
+                    'Delete game?',
+                    `Are you sure you want to delete the game: ${game.teamA.name} vs ${game.teamB.name}? All associated stat data will be lost.`,
+                    'Delete',
                     () => {
-                        // Delete game
+                        // 1. Delete game
                         let games = getFromStorage(STORAGE_KEYS.games);
                         games = games.filter(g => g.id !== gameId);
                         saveToStorage(STORAGE_KEYS.games, games);
-                        
-                        // Delete associated events
+
+                        // 2. Delete events
                         let events = getFromStorage(STORAGE_KEYS.events);
                         events = events.filter(e => e.gameId !== gameId);
                         saveToStorage(STORAGE_KEYS.events, events);
-                        
-                        showMessage("Game and all its data deleted.");
-                        
-                        // Refresh the stats page UI
+
+                        // 3. Refresh page
                         renderStatsPage();
+                        showMessage("Game deleted.");
                     }
                 );
             });
 
             deleteAllGamesBtn.addEventListener('click', () => {
-                showModal(
-                    "Delete All Data?",
-                    "Are you sure you want to permanently delete ALL games and ALL event data? This action cannot be undone.",
+                showConfirmModal(
+                    'Delete all data?',
+                    'Are you sure you want to delete ALL games and ALL event data? This cannot be undone.',
+                    'Delete everything',
                     () => {
+                        // Clear all data
                         saveToStorage(STORAGE_KEYS.games, []);
                         saveToStorage(STORAGE_KEYS.events, []);
                         
-                        showMessage("All game data has been deleted.");
-                        
-                        // Refresh the stats page UI
+                        // Refresh page
                         renderStatsPage();
+                        showMessage("All games and data have been deleted.");
                     }
                 );
             });
-
 
             // --- CONFIG PAGE ---
             const renderConfigPage = () => {
@@ -1298,7 +1382,6 @@
                     customStatsList.appendChild(li);
                 });
                 
-                // Add event listeners to delete buttons
                 $$('.delete-stat-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const statId = e.target.dataset.statId;
@@ -1363,9 +1446,10 @@
             });
 
             resetDefaultsBtn.addEventListener('click', () => {
-                showModal(
-                    "Reset Stats?",
-                    "Are you sure you want to reset all stats to the default list? This will delete all your custom stats.",
+                showConfirmModal(
+                    'Reset stats list?',
+                    'Are you sure you want to reset all stats? This will delete all your custom stats and restore the defaults.',
+                    'Reset',
                     () => {
                         saveToStorage(STORAGE_KEYS.stats, DEFAULT_STATS);
                         renderConfigPage();
@@ -1374,17 +1458,14 @@
                 );
             });
 
-            // --- INITIALIZATION ---
             const init = () => {
-                // Initialize default stats if not present
+                // Initialise default stats if none exist
                 if (localStorage.getItem(STORAGE_KEYS.stats) === null) {
                     saveToStorage(STORAGE_KEYS.stats, DEFAULT_STATS);
                 }
                 
-                // Render initial player inputs on setup form
                 renderPlayerInputs(teamAPlayersDiv, 'a');
                 renderPlayerInputs(teamBPlayersDiv, 'b');
-                // Show default view
                 showView('setup');
             };
 
