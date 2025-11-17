@@ -17,8 +17,8 @@
         body {
             font-family: 'Inter', sans-serif;
             overscroll-behavior: none;
-            /* Use Australian English spelling for grey */
-            @apply bg-grey-100;
+            /* Use Australian English spelling for gray */
+            @apply bg-gray-100;
         }
         .page {
             display: none;
@@ -32,11 +32,11 @@
         }
         /* Player button in a flex row */
         .player-btn-flex {
-            @apply w-32 flex-shrink-0 p-3 border border-grey-300 rounded-lg shadow-sm hover:bg-grey-100 text-left transition-all duration-150;
+            @apply w-32 flex-shrink-0 p-3 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 text-left transition-all duration-150;
         }
         /* Custom styling for stat buttons for better tap targets */
         .stat-btn {
-            @apply w-full h-full p-2 text-center text-sm font-semibold rounded-lg shadow-md transition-all duration-150 active:transform active:scale-95 border border-grey-300;
+            @apply w-full h-full p-2 text-center text-sm font-semibold rounded-lg shadow-md transition-all duration-150 active:transform active:scale-95 border border-gray-300;
         }
         .stat-btn-positive {
             @apply bg-green-500 text-white hover:bg-green-600;
@@ -45,7 +45,7 @@
             @apply bg-red-500 text-white hover:bg-red-600;
         }
         .stat-btn-neutral {
-            @apply bg-grey-500 text-white hover:bg-grey-600;
+            @apply bg-gray-500 text-white hover:bg-gray-600;
         }
         .stat-btn-penalty {
              @apply bg-yellow-500 text-black hover:bg-yellow-600;
@@ -56,16 +56,16 @@
         }
         /* Stats table styling */
         #stats-table th, #stats-table td {
-            @apply p-2 border border-grey-300 text-left;
+            @apply p-2 border border-gray-300 text-left;
         }
         #stats-table th {
-            @apply bg-grey-100;
+            @apply bg-gray-100;
         }
         #stats-table tfoot th, #stats-table tfoot td {
-            @apply font-bold bg-grey-200;
+            @apply font-bold bg-gray-200;
         }
         .stat-zero {
-            @apply text-grey-400;
+            @apply text-gray-400;
         }
         .stat-high-pos, .stat-low-neg {
             @apply bg-green-100 font-bold;
@@ -99,7 +99,7 @@
         }
     </style>
 </head>
-<body class="bg-grey-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen">
 
     <div class="container mx-auto max-w-6xl p-4">
         <!-- Header -->
@@ -107,11 +107,11 @@
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <h1 class="text-3xl font-bold text-blue-700">Netball Stats Tracker</h1>
                 <nav class="mt-4 md:mt-0">
-                    <button data-view="setup" class="nav-btn px-4 py-2 font-medium text-grey-700 rounded-lg hover:bg-grey-200 active">Game setup</button>
-                    <button data-view="live" class="nav-btn px-4 py-2 font-medium text-grey-700 rounded-lg hover:bg-grey-200">Live game</button>
-                    <button data-view="stats" class="nav-btn px-4 py-2 font-medium text-grey-700 rounded-lg hover:bg-grey-200">View stats</button>
-                    <button data-view="config" class="nav-btn px-4 py-2 font-medium text-grey-700 rounded-lg hover:bg-grey-200">Config</button>
-                    <button data-view="help" class="nav-btn px-4 py-2 font-medium text-grey-700 rounded-lg hover:bg-grey-200">Help</button>
+                    <button data-view="setup" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200 active">Game setup</button>
+                    <button data-view="live" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">Live game</button>
+                    <button data-view="stats" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">View stats</button>
+                    <button data-view="config" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">Config</button>
+                    <button data-view="help" class="nav-btn px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-gray-200">Help</button>
                 </nav>
             </div>
         </header>
@@ -139,10 +139,10 @@
                     <fieldset class="border rounded-lg p-4">
                         <div class="flex justify-between items-center mb-4">
                             <legend class="text-xl font-medium px-2">Our team</legend>
-                            <button type="button" id="reset-team-a" class="text-sm bg-grey-200 text-grey-700 px-3 py-1 rounded-lg hover:bg-grey-300">Reset</button>
+                            <button type="button" id="reset-team-a" class="text-sm bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300">Reset</button>
                         </div>
                         <div class="mb-4">
-                            <label for="team-a-name" class="block text-sm font-medium text-grey-700 mb-1">Team name</label>
+                            <label for="team-a-name" class="block text-sm font-medium text-gray-700 mb-1">Team name</label>
                             <input type="text" id="team-a-name" class="w-full p-2 border rounded-md" placeholder="e.g., Vixens" required>
                         </div>
                         <h4 class="font-medium mb-2">Players (enter 7 positions)</h4>
@@ -155,10 +155,10 @@
                     <fieldset id="team-b-setup" class="border rounded-lg p-4">
                          <div class="flex justify-between items-center mb-4">
                             <legend class="text-xl font-medium px-2">Their team</legend>
-                            <button type="button" id="reset-team-b" class="text-sm bg-grey-200 text-grey-700 px-3 py-1 rounded-lg hover:bg-grey-300">Reset</button>
+                            <button type="button" id="reset-team-b" class="text-sm bg-gray-200 text-gray-700 px-3 py-1 rounded-lg hover:bg-gray-300">Reset</button>
                         </div>
                         <div class="mb-4">
-                            <label for="team-b-name" class="block text-sm font-medium text-grey-700 mb-1">Team name</label>
+                            <label for="team-b-name" class="block text-sm font-medium text-gray-700 mb-1">Team name</label>
                             <input type="text" id="team-b-name" class="w-full p-2 border rounded-md" placeholder="e.g., Swifts" required>
                         </div>
                         <h4 class="font-medium mb-2">Players (enter 7 positions)</h4>
@@ -178,7 +178,7 @@
                     <select id="load-game-select" class="w-full p-2 border rounded-md mb-4">
                         <option value="">Select a game to resume...</option>
                     </select>
-                    <button id="load-game-btn" class="w-full bg-grey-600 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-grey-700 transition-all">
+                    <button id="load-game-btn" class="w-full bg-gray-600 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-gray-700 transition-all">
                         Load game
                     </button>
                 </div>
@@ -193,8 +193,8 @@
                 <!-- Game Info: Quarter, Timer, End Game -->
                 <div class="flex justify-between items-center mb-4 pb-4 border-b">
                     <div class="text-center">
-                        <span id="live-quarter" class="text-xl font-semibold text-grey-700">Quarter 1</span>
-                        <span id="live-timer" class="text-3xl font-bold text-grey-900 mx-6 block">15:00</span>
+                        <span id="live-quarter" class="text-xl font-semibold text-gray-700">Quarter 1</span>
+                        <span id="live-timer" class="text-3xl font-bold text-gray-900 mx-6 block">15:00</span>
                     </div>
                     <button id="end-game" class="bg-red-600 text-white px-4 py-2 rounded-lg font-bold h-fit">End full game</button>
                 </div>
@@ -215,7 +215,7 @@
                     <div class="flex justify-center gap-2 flex-wrap order-first md:order-none">
                         <button id="timer-start" class="bg-green-500 text-white px-4 py-2 rounded-lg font-medium">Start</button>
                         <button id="timer-pause" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-medium">Pause</button>
-                        <button id="timer-reset" class="bg-grey-500 text-white px-4 py-2 rounded-lg font-medium">Reset</button>
+                        <button id="timer-reset" class="bg-gray-500 text-white px-4 py-2 rounded-lg font-medium">Reset</button>
                         <button id="end-quarter" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold">End qtr</button>
                     </div>
 
@@ -261,7 +261,7 @@
             <!-- Game Event Log -->
             <div class="bg-white p-4 rounded-lg shadow-lg mt-4">
                 <h3 class="text-lg font-semibold mb-3 text-center">Live event log (last 10)</h3>
-                <button id="undo-last" class="w-full bg-grey-800 text-white py-2 rounded-lg mb-3 hover:bg-grey-700">Undo last</button>
+                <button id="undo-last" class="w-full bg-gray-800 text-white py-2 rounded-lg mb-3 hover:bg-gray-700">Undo last</button>
                 <ul id="event-log" class="text-sm space-y-2 h-48 overflow-y-auto border rounded-lg p-2">
                     <!-- Log items injected by JS -->
                 </ul>
@@ -273,7 +273,7 @@
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h2 class="text-2xl font-semibold mb-4">View game statistics</h2>
                 
-                <label for="stats-game-select" class="block text-sm font-medium text-grey-700 mb-1">Select a game</label>
+                <label for="stats-game-select" class="block text-sm font-medium text-gray-700 mb-1">Select a game</label>
                 <select id="stats-game-select" class="w-full p-2 border rounded-md mb-4">
                     <option value="">Select a finished game...</option>
                 </select>
@@ -313,7 +313,7 @@
                 <!-- Danger Zone -->
                 <div class="mt-8 border-t border-red-300 pt-6">
                     <h2 class="text-xl font-semibold mb-4 text-red-700">Danger zone</h2>
-                    <p class="text-grey-700 mb-4">This action cannot be undone. This will permanently delete all saved games and event data from your device.</p>
+                    <p class="text-gray-700 mb-4">This action cannot be undone. This will permanently delete all saved games and event data from your device.</p>
                     <button id="delete-all-games-btn" class="w-full md:w-auto bg-red-700 text-white font-bold py-3 px-6 rounded-lg text-lg hover:bg-red-800 transition-all">
                         Delete all games & data
                     </button>
@@ -329,11 +329,11 @@
                     <h2 class="text-2xl font-semibold mb-4">Add custom stat</h2>
                     <form id="add-stat-form" class="space-y-4">
                         <div>
-                            <label for="stat-name" class="block text-sm font-medium text-grey-700">Stat name</label>
+                            <label for="stat-name" class="block text-sm font-medium text-gray-700">Stat name</label>
                             <input type="text" id="stat-name" class="w-full p-2 border rounded-md mt-1" placeholder="e.g., Deflection" required>
                         </div>
                         <div>
-                            <label for="stat-type" class="block text-sm font-medium text-grey-700">Stat type</label>
+                            <label for="stat-type" class="block text-sm font-medium text-gray-700">Stat type</label>
                             <select id="stat-type" class="w-full p-2 border rounded-md mt-1 bg-white">
                                 <option value="positive">Positive</option>
                                 <option value="negative">Negative</option>
@@ -342,11 +342,11 @@
                             </select>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <input type="checkbox" id="stat-scores" class="h-4 w-4 text-blue-600 rounded border-grey-300">
-                            <label for="stat-scores" class="text-sm font-medium text-grey-700">Scores points?</label>
+                            <input type="checkbox" id="stat-scores" class="h-4 w-4 text-blue-600 rounded border-gray-300">
+                            <label for="stat-scores" class="text-sm font-medium text-gray-700">Scores points?</label>
                         </div>
                         <div id="stat-points-container" class="hidden">
-                             <label for="stat-points" class="block text-sm font-medium text-grey-700">Points value</label>
+                             <label for="stat-points" class="block text-sm font-medium text-gray-700">Points value</label>
                              <input type="number" id="stat-points" value="1" min="1" class="w-full p-2 border rounded-md mt-1">
                         </div>
                         <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">
@@ -416,17 +416,17 @@
     </div>
     
     <!-- Floating Message Box -->
-    <div id="message-box" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-grey-900 text-white px-6 py-3 rounded-lg shadow-xl opacity-0 transform translate-y-4 pointer-events-none">
+    <div id="message-box" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl opacity-0 transform translate-y-4 pointer-events-none">
         <span id="message-text">Message</span>
     </div>
 
     <!-- Custom Confirmation Modal -->
-    <div id="confirm-modal" class="fixed inset-0 z-50 items-center justify-center bg-grey-900 bg-opacity-50 hidden">
+    <div id="confirm-modal" class="fixed inset-0 z-50 items-center justify-center bg-gray-900 bg-opacity-50 hidden">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
             <h3 id="confirm-title" class="text-xl font-bold mb-4">Are you sure?</h3>
-            <p id="confirm-text" class="text-grey-700 mb-6">This action cannot be undone.</p>
+            <p id="confirm-text" class="text-gray-700 mb-6">This action cannot be undone.</p>
             <div class="flex justify-end space-x-4">
-                <button id="confirm-cancel-btn" class="px-4 py-2 bg-grey-200 text-grey-800 rounded-lg hover:bg-grey-300 font-medium">
+                <button id="confirm-cancel-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium">
                     Cancel
                 </button>
                 <button id="confirm-ok-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-bold">
@@ -665,7 +665,7 @@
                     const playerName = savedPlayer ? savedPlayer.name : '';
                     const div = document.createElement('div');
                     div.innerHTML = `
-                        <label for="player-${teamLetter}-${pos}" class="block text-sm font-medium text-grey-700">${pos}</label>
+                        <label for="player-${teamLetter}-${pos}" class="block text-sm font-medium text-gray-700">${pos}</label>
                         <input type="text" id="player-${teamLetter}-${pos}" data-position="${pos}" class="w-full p-2 border rounded-md" placeholder="Player name" value="${playerName}" required>
                     `;
                     container.appendChild(div);
@@ -848,7 +848,7 @@
                     btn.dataset.teamId = teamId;
                     btn.innerHTML = `
                         <span class="font-bold text-lg">${player.position}</span>
-                        <span class="block text-sm text-grey-700 truncate">${player.name}</span>
+                        <span class="block text-sm text-gray-700 truncate">${player.name}</span>
                     `;
                     btn.addEventListener('click', () => handlePlayerSelect(player, teamId, btn));
                     return btn;
@@ -1017,7 +1017,7 @@
             const logEventToUI = (event, game) => {
                 const li = document.createElement('li');
                 const teamName = game.teamA.id === event.teamId ? game.teamA.name : game.teamB.name;
-                li.className = "p-2 bg-grey-50 rounded";
+                li.className = "p-2 bg-gray-50 rounded";
                 li.textContent = `[Q${event.quarter}] ${event.playerName} (${teamName}) - ${event.statName}`;
                 li.dataset.eventId = event.id;
                 eventLogUl.prepend(li); // Add to top
@@ -1441,12 +1441,12 @@
                 
                 stats.forEach(stat => {
                     const li = document.createElement('li');
-                    li.className = 'flex justify-between items-center p-3 bg-grey-50 rounded-lg border';
+                    li.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg border';
                     li.innerHTML = `
                         <div>
                             <span class="font-medium">${stat.name}</span>
-                            <span class="text-sm text-grey-600 ml-2">(${stat.type}, ${stat.score}pts)</span>
-                            ${!stat.isCustom ? '<span class="text-xs text-grey-400 ml-2 bg-grey-200 px-1.5 py-0.5 rounded-full">Default</span>' : ''}
+                            <span class="text-sm text-gray-600 ml-2">(${stat.type}, ${stat.score}pts)</span>
+                            ${!stat.isCustom ? '<span class="text-xs text-gray-400 ml-2 bg-gray-200 px-1.5 py-0.5 rounded-full">Default</span>' : ''}
                         </div>
                         <button data-stat-id="${stat.id}" class="delete-stat-btn text-red-500 hover:text-red-700 font-medium">Delete</button>
                     `;
